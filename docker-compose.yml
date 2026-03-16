@@ -1,0 +1,91 @@
+services:
+
+  # -------------------------
+  # FRONTEND REACT
+  # -------------------------
+  frontend:
+    build: ./frontend
+    container_name: hackathon_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+
+  # -------------------------
+  # BACKEND NODE API
+  # -------------------------
+  backend:
+    build: ./backend
+    container_name: hackathon_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/hackathon
+    depends_on:
+      - mongo
+
+  # -------------------------
+  # MONGODB
+  # -------------------------
+  mongo:
+    image: mongo:6
+    container_name: hackathon_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # -------------------------
+  # AIRFLOW DATABASE
+  # -------------------------
+  postgres:
+    image: postgres:13
+    container_name: airflow_postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # -------------------------
+  # AIRFLOW
+  # -------------------------
+  airflow:
+    image: apache/airflow:2.7.0
+    container_name: hackathon_airflow
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "
+      airflow db init &&
+      airflow users create \
+      --username admin \
+      --password admin \
+      --firstname admin \
+      --lastname admin \
+      --role Admin \
+      --email admin@example.com &&
+      airflow webserver
+      "
+
+volumes:
+  mongo_data:
+  postgres_data:
