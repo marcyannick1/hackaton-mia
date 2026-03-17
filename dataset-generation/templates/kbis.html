@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Extrait KBIS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      margin: 30px;
+      color: #111;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    td, th {
+      border: 1px solid #222;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f2f2f2;
+      text-align: left;
+      width: 35%;
+    }
+
+    .footer {
+      margin-top: 35px;
+      font-size: 10px;
+      text-align: center;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>EXTRAIT KBIS</h1>
+  <div class="subtitle">
+    Document fictif généré à des fins de test et de démonstration
+  </div>
+
+  <table>
+    <tr>
+      <th>Raison sociale</th>
+      <td>{{ raison_sociale }}</td>
+    </tr>
+    <tr>
+      <th>Forme juridique</th>
+      <td>{{ forme_juridique }}</td>
+    </tr>
+    <tr>
+      <th>SIREN</th>
+      <td>{{ siren }}</td>
+    </tr>
+    <tr>
+      <th>SIRET</th>
+      <td>{{ siret }}</td>
+    </tr>
+    <tr>
+      <th>Adresse</th>
+      <td>{{ adresse }}, {{ code_postal }} {{ ville }}</td>
+    </tr>
+    <tr>
+      <th>Code NAF</th>
+      <td>{{ code_naf }} - {{ intitule_naf }}</td>
+    </tr>
+    <tr>
+      <th>Date d'immatriculation</th>
+      <td>{{ date_immatriculation }}</td>
+    </tr>
+    <tr>
+      <th>Greffe</th>
+      <td>{{ greffe }}</td>
+    </tr>
+    <tr>
+      <th>Dirigeant principal</th>
+      <td>{{ dirigeant }}</td>
+    </tr>
+    <tr>
+      <th>Durée de la société</th>
+      <td>{{ duree }}</td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    Extrait reproduit à titre illustratif. Ce document ne constitue pas un document officiel.
+  </div>
+
+</body>
+</html>

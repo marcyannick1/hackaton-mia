@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Facture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      margin: 28px;
+      color: #111;
+    }
+
+    .top {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .top td {
+      vertical-align: top;
+    }
+
+    .company-block {
+      width: 52%;
+      padding-right: 20px;
+    }
+
+    .doc-block {
+      width: 48%;
+    }
+
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    .doc-table th,
+    .doc-table td {
+      border: 1px solid #222;
+      padding: 4px 6px;
+      font-size: 11px;
+    }
+
+    .doc-title {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .small {
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .address-row {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 16px 0;
+      margin: 18px 0 20px 0;
+    }
+
+    .box {
+      border: 1px solid #333;
+      border-radius: 18px;
+      padding: 12px 14px;
+      min-height: 70px;
+      vertical-align: top;
+      width: 50%;
+    }
+
+    .box-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .items-table th,
+    .items-table td {
+      border: 1px solid #222;
+      padding: 6px 6px;
+      vertical-align: top;
+      font-size: 11px;
+    }
+
+    .items-table th {
+      background: #f3f3f3;
+      text-align: center;
+    }
+
+    .ref-col { width: 12%; }
+    .desc-col { width: 48%; }
+    .qty-col { width: 8%; text-align: center; }
+    .unit-col { width: 12%; text-align: right; }
+    .ht-col { width: 12%; text-align: right; }
+    .tva-col { width: 8%; text-align: right; }
+
+    .right { text-align: right; }
+    .center { text-align: center; }
+
+    .summary-wrap {
+      width: 100%;
+      margin-top: 18px;
+      border-collapse: collapse;
+    }
+
+    .summary-wrap td {
+      vertical-align: top;
+    }
+
+    .payment-info {
+      width: 55%;
+      font-size: 11px;
+    }
+
+    .totals-box {
+      width: 45%;
+      padding-left: 18px;
+    }
+
+    .totals-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .totals-table td,
+    .totals-table th {
+      border: 1px solid #222;
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+
+    .totals-table th {
+      background: #f3f3f3;
+    }
+
+    .footer {
+      margin-top: 70px;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="top">
+    <tr>
+      <td class="company-block">
+        <div style="font-size: 28px; font-weight: bold;">{{ entreprise_nom }}</div>
+        <div class="small">
+          {{ categorie_juridique }}<br>
+          SIREN : {{ siren }}<br>
+          SIRET : {{ facture_siret }}<br>
+          Adresse : {{ adresse }}<br>
+          {{ code_postal }} {{ ville }}
+        </div>
+      </td>
+      <td class="doc-block">
+        <div class="doc-title">FACTURE</div>
+        <table class="doc-table">
+          <tr>
+            <th>N° de facture</th>
+            <th>Date</th>
+            <th>Réf. devis</th>
+          </tr>
+          <tr>
+            <td>{{ ref_facture }}</td>
+            <td>{{ date_facture }}</td>
+            <td>{{ facture_ref_devis }}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <table class="address-row">
+    <tr>
+      <td class="box">
+        <div class="box-title">Adresse client</div>
+        {{ client_nom }}<br>
+        {{ client_adresse }}<br>
+        {{ client_code_postal }} {{ client_ville }}<br>
+        {{ client_email }}<br>
+        {{ client_telephone }}
+      </td>
+      <td class="box">
+        <div class="box-title">Adresse de facturation</div>
+        {{ facture_nom }}<br>
+        {{ adresse }}<br>
+        {{ code_postal }} {{ ville }}
+      </td>
+    </tr>
+  </table>
+
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th class="ref-col">Référence</th>
+        <th class="desc-col">Désignation</th>
+        <th class="qty-col">Qté</th>
+        <th class="unit-col">Prix unit.</th>
+        <th class="ht-col">Montant HT</th>
+        <th class="tva-col">TVA</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ligne in facture_lignes %}
+      <tr>
+        <td>REF{{ loop.index }}</td>
+        <td>{{ ligne.nom }}</td>
+        <td class="center">{{ ligne.qte }}</td>
+        <td class="right">{{ "%.2f"|format(ligne.prix) }} €</td>
+        <td class="right">{{ "%.2f"|format(ligne.total) }} €</td>
+        <td class="right">20%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="summary-wrap">
+    <tr>
+      <td class="payment-info">
+        <strong>Règlement :</strong><br>
+        Date d'échéance : {{ date_validite }}<br>
+        Délai de paiement : {{ delay_payment if delay_payment is defined else 30 }} jours
+      </td>
+      <td class="totals-box">
+        <table class="totals-table">
+          <tr>
+            <th>Total HT</th>
+            <th>Total TVA</th>
+            <th>Total TTC</th>
+          </tr>
+          <tr>
+            <td class="right">{{ "%.2f"|format(facture_total_HT) }} €</td>
+            <td class="right">{{ "%.2f"|format(facture_total_TTC - facture_total_HT) }} €</td>
+            <td class="right">{{ "%.2f"|format(facture_total_TTC) }} €</td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>Net à payer</strong></td>
+            <td class="right"><strong>{{ "%.2f"|format(facture_total_TTC) }} €</strong></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    En cas de retard de paiement, seront exigibles, conformément à l'article L.441-10 du code de commerce,
+    une indemnité calculée sur la base de 3 fois le taux de l'intérêt légal en vigueur ainsi qu'une indemnité
+    forfaitaire pour frais de recouvrement de 40 €.
+  </div>
+
+</body>
+</html>
