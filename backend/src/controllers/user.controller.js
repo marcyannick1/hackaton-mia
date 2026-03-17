@@ -2,7 +2,7 @@ const User = require("../models/user.model");
 const { hashPassword } = require("../utils/password.utils");
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, "-password");
+    const users = await User.find({});
 
     return res.status(200).json({
       error: false,
@@ -22,7 +22,7 @@ exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(id, "-password");
+    const user = await User.findById(id);
 
     if (!user) {
       return res.status(404).json({
@@ -51,7 +51,7 @@ exports.getMyProfile = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    const user = await User.findById(userId, "-password");
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -79,7 +79,7 @@ exports.getMyProfile = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { username, email, bio, profile_picture } = req.body;
+    const { username, email } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -112,14 +112,11 @@ exports.updateUser = async (req, res) => {
     const updateData = {};
     if (username) updateData.username = username;
     if (email) updateData.email = email;
-    if (bio !== undefined) updateData.bio = bio;
-    if (profile_picture !== undefined)
-      updateData.profile_picture = profile_picture;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
       runValidators: true,
-    }).select("-password");
+    });
 
     return res.status(200).json({
       error: false,
@@ -201,15 +198,12 @@ exports.searchUsers = async (req, res) => {
       });
     }
 
-    const users = await User.find(
-      {
-        $or: [
-          { username: { $regex: query, $options: "i" } },
-          { email: { $regex: query, $options: "i" } },
-        ],
-      },
-      "-password",
-    ).limit(20);
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ],
+    }).limit(20);
 
     return res.status(200).json({
       error: false,
