@@ -2,48 +2,76 @@ const mongoose = require("mongoose");
 
 const documentSchema = new mongoose.Schema(
   {
-    userId: {
+    filename: {
+      type: String,
+      required: [true, "Filename is required"],
+    },
+    originalName: String,
+    fileSize: Number,
+    filePath: String,
+    fileType: {
+      type: String,
+      enum: ["pdf", "image", "other"],
+      required: true,
+    },
+    mimeType: String,
+    documentType: {
+      type: String,
+      enum: [
+        "invoice",
+        "quote",
+        "attestation_siret",
+        "attestation_urssaf",
+        "kbis",
+        "rib",
+        "other",
+      ],
+      default: "other",
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
+    uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    filename: {
-      type: String,
-      required: true,
-    },
-
-    fileUrl: {
-      type: String,
-      required: true,
-    },
-
-    type: {
-      type: String,
-      enum: ["Facture", "Devis", "Attestation", "Kbis", "RIB", "Inconnu"],
-      default: "Inconnu",
-    },
-
     status: {
       type: String,
-      enum: ["En attente", "Traité", "Erreur de cohérence", "Expiré"],
-      default: "En attente",
+      enum: ["uploaded", "processing", "completed", "failed"],
+      default: "uploaded",
     },
-
     extractedData: {
-      siret: { type: String },
-      tva: { type: Number },
-      montantHT: { type: Number },
-      montantTTC: { type: Number },
-      dateEmission: { type: Date },
-      dateExpiration: { type: Date },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Extraction",
     },
-
-    alerts: [
-      {
-        message: String,
-        severity: { type: String, enum: ["Low", "High"], default: "High" },
-      },
-    ],
+    ocrText: {
+      type: String,
+      default: null,
+    },
+    confidence: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 0,
+    },
+    isValidated: {
+      type: Boolean,
+      default: false,
+    },
+    validatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    validationDate: Date,
+    storageZone: {
+      type: String,
+      enum: ["raw", "clean", "curated"],
+      default: "raw",
+    },
+    errors: [String],
+    notes: String,
   },
   {
     timestamps: true,

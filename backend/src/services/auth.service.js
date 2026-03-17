@@ -49,7 +49,7 @@ exports.SignIn = async (data) => {
   try {
     const { email, password } = data;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return {
@@ -73,7 +73,10 @@ exports.SignIn = async (data) => {
       userId: user.id,
       username: user.username,
       email: user.email,
+      role: user.role,
     });
+
+    await User.updateOne({ _id: user._id }, { lastLogin: new Date() });
 
     return {
       error: false,
