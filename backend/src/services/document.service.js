@@ -1,6 +1,48 @@
 const Document = require("../models/document.model");
 const Extraction = require("../models/extraction.model");
 
+exports.getAllDocuments = async () => {
+  try {
+    const documents = await Document.find({})
+      .populate("extractedData")
+      .sort({ createdAt: -1 });
+
+    return {
+      error: false,
+      message: "Documents récupérés avec succès",
+      data: documents,
+      statusCode: 200,
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: "Erreur lors de la récupération des documents",
+      statusCode: 500,
+    };
+  }
+};
+
+exports.getUserDocuments = async (userId) => {
+  try {
+    const documents = await Document.find({ uploadedBy: userId })
+      .populate("extractedData")
+      .sort({ createdAt: -1 });
+
+    return {
+      error: false,
+      message: "Documents récupérés avec succès",
+      data: documents,
+      statusCode: 200,
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: "Erreur lors de la récupération de vos documents",
+      statusCode: 500,
+    };
+  }
+};
+
 exports.createDocument = async (fileData, metadata, userId) => {
   try {
     const { filename, originalname, size, path, mimetype } = fileData;
