@@ -79,7 +79,7 @@ exports.getMyProfile = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { username, email, bio, profile_picture } = req.body;
+    const { username, email } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -112,9 +112,6 @@ exports.updateUser = async (req, res) => {
     const updateData = {};
     if (username) updateData.username = username;
     if (email) updateData.email = email;
-    if (bio !== undefined) updateData.bio = bio;
-    if (profile_picture !== undefined)
-      updateData.profile_picture = profile_picture;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
