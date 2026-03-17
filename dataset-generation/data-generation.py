@@ -84,7 +84,7 @@ def export_to_csv(filename, data_rows):
             "code_postal",
             "code_naf",
             "intitule_naf",
-            "categorie_juridique"
+            "categorie_juridique",
             "intitule_categorie_juridique"
         ])
 
@@ -119,8 +119,8 @@ def main():
     naf_bdd = get_naf_description()
     forme_juridique_bdd = get_forme_juridique_description()
     enseignes_connues = [
-        "Carrefour France", "Lidl", "Leclerc", "Auchan", "Decathlon",
-        "Ikea", "Fnac", "Boulanger", "Starbucks", "McDonald's"
+        "Carrefour France", "Lidl", "Leclerc", "Auchan",
+        "Ikea", "Fnac", "Boulanger"
     ]
 
     results = []

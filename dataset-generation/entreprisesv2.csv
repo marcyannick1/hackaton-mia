@@ -1,11 +1,8 @@
-enseigne,siren,siret,nom,adresse,ville,code_postal,code_naf,intitule_naf,categorie_juridiqueintitule_categorie_juridique
+enseigne,siren,siret,nom,adresse,ville,code_postal,code_naf,intitule_naf,categorie_juridique,intitule_categorie_juridique
 Carrefour France,672050085,67205008502051,CARREFOUR FRANCE,ROUTE DE PARIS,MONDEVILLE,14120,70.10Z,Activités des sièges sociaux,5710,"SAS, société par actions simplifiée"
 Lidl,343262622,34326262202376,LIDL,2 RUE CHAPTAL,SAINT-BRIEUC,22000,47.11D,Supermarchés,5202,Société en nom collectif 
-Leclerc,503814238,50381423800013,LECLERC,70 AVENUE DU GENERAL LECLERC,BEAUCHAMP,95250,68.20B,Location de terrains et d'autres biens immobiliers,6540,Société civile immobilière 
+Leclerc,802830943,80283094300014,LECLERC,26 RUE DU MARECHAL LECLERC,FLERS-EN-ESCREBIEUX,59128,68.20B,Location de terrains et d'autres biens immobiliers,6540,Société civile immobilière 
 Auchan,379548001,37954800100070,AUCHAN CARBURANT,CENTRE COMMERCIAL LE GRAND CAP,LE HAVRE,76600,47.30Z,Commerce de détail de carburants en magasin spécialisé,5710,"SAS, société par actions simplifiée"
-Decathlon,306138900,30613890001757,DECATHLON,RTE N 6,VARENNES-LES-MACON,71000,68.20B,Location de terrains et d'autres biens immobiliers,5800,Société européenne 
-Ikea,351745724,35174572400507,MEUBLES IKEA FRANCE,61 RUE DES GRANGES,BESANCON,25000,47.59A,Commerce de détail de meubles,5710,"SAS, société par actions simplifiée"
+Ikea,351745724,35174572400572,MEUBLES IKEA FRANCE,147 RUE CARDINET,PARIS,75017,47.59A,Commerce de détail de meubles,5710,"SAS, société par actions simplifiée"
 Fnac,334473352,33447335200253,RELAIS FNAC,17 AVENUE VICTOR HUGO,VALENCE,26000,47.41Z,"Commerce de détail d'ordinateurs, d'unités périphériques et de logiciels en magasin spécialisé",5710,"SAS, société par actions simplifiée"
-Boulanger,347384570,34738457000110,BOULANGER,CHAMP DU PONT,ST PRIEST,69800,47.54Z,Commerce de détail d'appareils électroménagers en magasin spécialisé,5599,SA à conseil d'administration (s.a.i.)
-Starbucks,424992410,42499241000037,SCI STARBUCKS HOUSE,117 AVENUE DU PLAT PAYS,WAMBRECHIES,59118,68.20B,Location de terrains et d'autres biens immobiliers,6540,Société civile immobilière 
-McDonald's,722003936,72200393600837,MCDONALD'S FRANCE,8 AVENUE GENERAL DE GAULLE,CHAMPAGNE-AU-MONT-D'OR,69410,68.20B,Location de terrains et d'autres biens immobiliers,5710,"SAS, société par actions simplifiée"
+Boulanger,347384570,34738457001357,BOULANGER,RUE MARIE CURIE,COLOMIERS,31770,47.54Z,Commerce de détail d'appareils électroménagers en magasin spécialisé,5599,SA à conseil d'administration (s.a.i.)
