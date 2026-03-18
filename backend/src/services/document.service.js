@@ -1,6 +1,7 @@
 const Document = require("../models/document.model");
 const Extraction = require("../models/extraction.model");
 const ocrService = require("./ocr.service");
+const Company = require("../models/company.model");
 const fs = require("fs").promises;
 const { parseAmount, parseDate } = require("../utils/formatter.utils");
 
@@ -123,9 +124,20 @@ exports.createDocument = async (fileData, metadata, userId) => {
         savedDocument.status = "completed";
         await savedDocument.save();
 
+        let finalSiret = null;
+        if (extracted && extracted.siret) {
+          finalSiret = extracted.siret;
+        } else if (full_text) {
+          const cleanText = full_text.replace(/\s/g, "");
+          const match = cleanText.match(/(?<!\d)\d{14}(?!\d)/);
+          if (match) {
+            finalSiret = match[0];
+          }
+        }
+
         if (extracted) {
           savedExtraction.extractedData = {
-            siret: extracted.siret || null,
+            siret: finalSiret,
             tva: extracted.tva || null,
           };
 
@@ -173,6 +185,44 @@ exports.createDocument = async (fileData, metadata, userId) => {
 
           savedExtraction.status = "in_review";
           await savedExtraction.save();
+        }
+
+        if (!savedDocument.company && finalSiret) {
+          let existingCompany = await Company.findOne({ siret: finalSiret });
+
+          if (!existingCompany) {
+            let newCompanyName = "Nouveau Fournisseur";
+            const docType = savedDocument.documentType;
+            if (
+              docType === "attestation_siret" &&
+              extracted &&
+              extracted.denomination
+            ) {
+              newCompanyName = extracted.denomination;
+            } else if (
+              docType === "kbis" &&
+              extracted &&
+              extracted.forme_juridique
+            ) {
+              newCompanyName = "Fournisseur (KBIS)";
+            } else if (extracted && extracted.titulaire) {
+              newCompanyName = extracted.titulaire;
+            }
+
+            existingCompany = new Company({
+              name: newCompanyName,
+              siret: finalSiret,
+              complianceStatus: "unknown",
+            });
+            await existingCompany.save();
+          }
+
+          savedDocument.company = existingCompany._id;
+          await savedDocument.save();
+
+          await Company.findByIdAndUpdate(existingCompany._id, {
+            $push: { documents: savedDocument._id },
+          });
         }
       } else {
         savedDocument.status = "failed";
