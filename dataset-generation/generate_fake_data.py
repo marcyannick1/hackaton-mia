@@ -14,10 +14,16 @@ TEMPLATE_DIR = "./dataset-generation/templates"
 OUTPUT_FACTURES = "./data/output/factures"
 OUTPUT_DEVIS = "./data/output/devis"
 OUTPUT_KBIS = "./data/output/kbis"
+OUTPUT_RIB = "./data/output/rib"
+OUTPUT_ATTESTATION_SIRET = "./data/output/attestation_siret"
+OUTPUT_ATTESTATION_URSSAF = "./data/output/attestation_urssaf"
 
 os.makedirs(OUTPUT_FACTURES, exist_ok=True)
 os.makedirs(OUTPUT_DEVIS, exist_ok=True)
 os.makedirs(OUTPUT_KBIS, exist_ok=True)
+os.makedirs(OUTPUT_RIB, exist_ok=True)
+os.makedirs(OUTPUT_ATTESTATION_SIRET, exist_ok=True)
+os.makedirs(OUTPUT_ATTESTATION_URSSAF, exist_ok=True)
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 CSV_FILE = "./dataset-generation/entreprisesv2.csv"
@@ -40,7 +46,6 @@ def generate_client():
         "email": fake.email(),
         "telephone": fake.phone_number()
     }
-
 def generate_date_validite():
     today = datetime.today()
     if random.choice([True, False]):
@@ -142,6 +147,89 @@ def generate_kbis(row):
         "duree": duree
     }
 
+def generate_ban(row):
+    banques = [
+    "BNP Paribas",
+    "Société Générale",
+    "Crédit Agricole",
+    "Crédit Mutuel",
+    "Banque Populaire",
+    "Caisse d'Épargne",
+    "La Banque Postale",
+    "HSBC France",
+    "Boursorama Banque",
+    "LCL"
+    ]
+    bics = [
+    "BNPAFRPP",  # BNP Paribas
+    "SOGEFRPP",  # Société Générale
+    "AGRIFRPP",  # Crédit Agricole
+    "CMCIFR2A",  # Crédit Mutuel
+    "CCBPFRPP",  # Banque Populaire
+    "CEPAFRPP",  # Caisse d'Épargne
+    "PSSTFRPP",  # La Banque Postale
+    "CCFRFRPP",  # HSBC France
+    "BOUSFRPP",  # Boursorama Banque
+    "CRLYFRPP"   # LCL
+    ]
+
+    index = random.randint(0, len(banques) - 1)
+
+    base_company = row["nom"].lower().replace(" ", "").replace("'", "")
+    clean_name = fake.name().lower().replace(" ","")
+    email = clean_name +"@"+base_company+".com"
+    return{
+        "entreprise_nom" : row["nom"],
+        "bank" : banques[index],
+        "iban" : fake.iban(),
+        "bic" : bics[index],
+        "siren" : row["siren"],
+        "siret" : row["siret"],
+        "num_tva" : row["num_tva"],
+        "telephone_entreprise" : fake.phone_number(),
+        "email_entreprise" : email,
+        "code_naf" : row["code_naf"]
+    }
+
+def generate_attestation_siret(row):
+
+    today = datetime.today()
+    # On choisit un nombre de jours aléatoire dans le passé (0 à 3 ans)
+    random_date_debut = random.randint(0, 3 * 365)
+    date_debut = today - timedelta(days=random_date_debut)
+    # Date de fin = + 1 an
+    date_fin = date_debut + timedelta(days=365)
+    
+    return {
+        "entreprise_nom" : row["nom"],
+        "forme_juridique" : row["intitule_categorie_juridique"],
+        "date_creation" : row["date_creation"],
+        "siren" : row["siren"],
+        "siret" : row["siret"],
+        "code_ape" : row["code_naf"],
+        "activite" :row["intitule_naf"],
+        "date_debut" : date_debut.strftime("%d/%m/%Y"),
+        "date_fin" : date_fin.strftime("%d/%m/%Y"),
+        "num_attestation" : str(random.randint(10000000000000, 99999999999999))
+    }
+
+def generate_attestation_urssaf(row):
+    today = datetime.today()
+    # On choisit un nombre de jours aléatoire dans le passé (0 à 3 ans)
+    random_date_debut = random.randint(0, 3 * 365)
+    date_debut = today - timedelta(days=random_date_debut)
+    # Date de fin = + 6 mois
+    date_fin = date_debut + timedelta(days=182)
+    return {
+    "entreprise_nom" : row["nom"],
+    "forme_juridique" : row["intitule_categorie_juridique"],
+    "siren" : row["siren"],
+    "siret" : row["siret"],
+    "adresse": row["adresse"],
+    "reference_attestation" :str(random.randint(10000000000000, 99999999999999)),
+    "date_debut" : date_debut.strftime("%d/%m/%Y"),
+    "date_fin" : date_fin.strftime("%d/%m/%Y"),
+    }
 # -----------------------
 # Export PDF
 # -----------------------
@@ -160,6 +248,7 @@ def generate_pdf(template_name, row, output_dir, filename):
 # -----------------------
 def main():
     df = retrieve_entreprise_data(CSV_FILE)
+    print(df.info())
     dataset = []
 
     for _, ent in df.iterrows():
@@ -174,7 +263,13 @@ def main():
         # Génération KBIS
         kbis_data = generate_kbis(ent)
         generate_pdf("kbis.html", kbis_data, OUTPUT_KBIS, "KBIS")
-
+        rib_data = generate_ban(ent)
+        generate_pdf("rib.html",rib_data,OUTPUT_RIB,"RIB")
+        attestation_siret = generate_attestation_siret(ent)
+        generate_pdf("attestation_siret.html",attestation_siret,OUTPUT_ATTESTATION_SIRET,"AS")
+        attestation_urssaf = generate_attestation_urssaf(ent)
+        generate_pdf("attestation_urssaf.html",attestation_urssaf,OUTPUT_ATTESTATION_URSSAF,"AU")
+    
         for _ in range(3):
             client = generate_client()
             lignes_devis = generate_lignes(random.randint(1,4))
@@ -234,7 +329,9 @@ def main():
             generate_pdf("devis.html", row, OUTPUT_DEVIS, f"devis_{ref_devis}")
 
     print("Devis, factures et KBIS générés !")
+    
     return dataset
+
 
 if __name__ == "__main__":
     dataset = main()

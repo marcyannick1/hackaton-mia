@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiche récapitulative - Vigilance URSSAF</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #374151;
+    }
+
+    .page {
+      width: 900px;
+      margin: 24px auto;
+      background: #fff;
+      padding: 40px 48px;
+      border: 1px solid #d1d5db;
+    }
+
+
+    .title {
+      text-align: center;
+      font-size: 40px;
+      font-weight: 800;
+      color: #111827;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 36px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+      border-bottom: 2px solid #9ca3af;
+      padding-bottom: 8px;
+      margin: 28px 0 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    td {
+      padding: 14px 0;
+      font-size: 16px;
+    }
+
+    td.label {
+      width: 38%;
+      font-weight: 700;
+      padding-right: 20px;
+    }
+
+    td.value {
+      width: 62%;
+      color: #4b5563;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { width: 100%; margin: 0; border: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <h1 class="title">Vigilance URSSAF</h1>
+    <div class="subtitle">Synthèse administrative interne</div>
+
+    <div class="section-title">Informations de l’entreprise</div>
+    <table>
+      <tr>
+        <td class="label">Raison sociale</td>
+        <td class="value">{{entreprise_nom}}</td>
+      </tr>
+      <tr>
+        <td class="label">Forme juridique</td>
+        <td class="value">{{forme_juridique}}</td>
+      </tr>
+      <tr>
+        <td class="label">SIREN</td>
+        <td class="value">{{siren}}</td>
+      </tr>
+      <tr>
+        <td class="label">SIRET</td>
+        <td class="value">{{siret}}</td>
+      </tr>
+      <tr>
+        <td class="label">Adresse</td>
+        <td class="value">{{adresse}}</td>
+      </tr>
+    </table>
+
+    <div class="section-title">Informations de suivi</div>
+    <table>
+      <tr>
+        <td class="label">Reference attestation</td>
+        <td class="value">{{reference_attestation}}</td>
+      </tr>
+      <tr>
+        <td class="label">Date de début</td>
+        <td class="value">{{date_debut}}</td>
+      </tr>
+      <tr>
+        <td class="label">Date de fin</td>
+        <td class="value">{{date_fin}}</td>
+      </tr>
+    </table>
+
+  </div>
+</body>
+</html>

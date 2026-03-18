@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attestation SIRET / SIREN</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #efefef;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #4a4f55;
+    }
+
+    .page {
+      width: 890px;
+      margin: 0 auto;
+      background: #efefef;
+      padding: 40px 46px 20px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 58px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #1f2933;
+      margin: 10px 0 48px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: #4b4f54;
+      margin: 30px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid #7c7f83;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    .info-table tr {
+      border-bottom: 1px solid #d7d7d7;
+    }
+
+    .info-table td {
+      padding: 14px 0;
+      font-size: 18px;
+    }
+
+    .info-table td.label {
+      width: 44%;
+      font-weight: 700;
+      padding-right: 20px;
+    }
+
+    .info-table td.value {
+      width: 56%;
+      color: #64686d;
+    }
+
+    .siret-box {
+      margin-top: 34px;
+      background: #005bac;
+      color: #ffffff;
+      text-align: center;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      padding: 18px 20px;
+    }
+
+    @media print {
+      body { background: #ffffff; }
+      .page { width: 100%; padding: 30px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">ATTESTATION SIRET</h1>
+
+    <div class="section-title">Informations légales de l’entreprise</div>
+
+    <table class="info-table">
+      <tr><td class="label">Raison sociale</td><td class="value">{{entreprise_nom}}</td></tr>
+      <tr><td class="label">Forme juridique</td><td class="value">{{forme_juridique}}</td></tr>
+      <tr><td class="label">Date de création</td><td class="value">{{date_creation}}</td></tr>
+      <tr><td class="label">N° SIREN</td><td class="value">{{siren}}</td></tr>
+      <tr><td class="label">N° SIRET</td><td class="value">{{siret}}</td></tr>
+      <tr><td class="label">Code APE</td><td class="value">{{code_ape}}</td></tr>
+      <tr><td class="label">Activité</td><td class="value">{{activite}}</td></tr>
+    </table>
+
+    <!-- 🔹 Nouvelle section -->
+    <div class="section-title">Période de validité de l’attestation</div>
+
+    <table class="info-table">
+      <tr>
+        <td class="label">Date de début</td>
+        <td class="value">{{date_debut}}</td>
+      </tr>
+      <tr>
+        <td class="label">Date de fin</td>
+        <td class="value">{{date_fin}}</td>
+      </tr>
+    </table>
+
+    <div class="siret-box">{{num_attestation}}</div>
+  </div>
+</body>
+</html>
