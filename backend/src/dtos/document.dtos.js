@@ -1,4 +1,12 @@
 const Joi = require("joi");
+const mongoose = require("mongoose");
+
+const objectId = (value, helpers) => {
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    return helpers.message('"company" doit être un ID MongoDB valide');
+  }
+  return value;
+};
 
 const uploadMetadataSchema = Joi.object({
   documentType: Joi.string()
@@ -12,7 +20,7 @@ const uploadMetadataSchema = Joi.object({
       "other",
     )
     .optional(),
-  company: Joi.string().optional(),
+  company: Joi.string().custom(objectId).optional(),
 });
 
 module.exports = {
