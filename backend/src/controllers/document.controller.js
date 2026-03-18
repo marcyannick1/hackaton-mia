@@ -84,3 +84,28 @@ exports.uploadDocument = async (req, res) => {
     });
   }
 };
+
+exports.deleteDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+    const userRole = req.user.role;
+
+    const result = await documentService.deleteDocument(id, userId, userRole);
+
+    if (result.error) {
+      return res.status(result.statusCode).json({
+        error: true,
+        message: result.message,
+      });
+    }
+
+    return res.status(result.statusCode).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Erreur serveur lors de la suppression du document",
+      details: error.message,
+    });
+  }
+};

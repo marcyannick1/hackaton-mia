@@ -15,6 +15,8 @@ router.get(
 );
 router.get("/me", authenticate, documentController.getMyDocuments);
 
+router.delete("/:id", authenticate, documentController.deleteDocument);
+
 router.post(
   "/upload",
   authenticate,
