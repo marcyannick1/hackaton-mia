@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const documentSchema = new mongoose.Schema(
+const rawZoneSchema = new mongoose.Schema(
   {
     filename: {
       type: String,
@@ -28,10 +28,7 @@ const documentSchema = new mongoose.Schema(
       ],
       default: 'other',
     },
-    company: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company',
-    },
+ 
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -42,33 +39,13 @@ const documentSchema = new mongoose.Schema(
       enum: ['uploaded', 'processing', 'completed', 'failed'],
       default: 'uploaded',
     },
-    extractedData: {
+    cleanZone: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Extraction',
+      ref: 'CleanZone',
     },
-    ocrText: {
-      type: String,
-      default: null,
-    },
-    confidence: {
-      type: Number,
-      min: 0,
-      max: 100,
-      default: 0,
-    },
-    isValidated: {
-      type: Boolean,
-      default: false,
-    },
-    validatedBy: {
+    curatedZone: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-    validationDate: Date,
-    storageZone: {
-      type: String,
-      enum: ['raw', 'clean', 'curated'],
-      default: 'raw',
+      ref: 'CuratedZone',
     },
     errors: [String],
     notes: String,
@@ -78,4 +55,4 @@ const documentSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Document', documentSchema);
+module.exports = mongoose.model('RawZone', rawZoneSchema);

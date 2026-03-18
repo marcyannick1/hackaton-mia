@@ -1,11 +1,20 @@
 const mongoose = require('mongoose');
 
-const extractionSchema = new mongoose.Schema(
+const curatedZoneSchema = new mongoose.Schema(
   {
-    document: {
+    rawZone: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Document',
+      ref: 'RawZone',
       required: true,
+    },
+    cleanZone: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CleanZone',
+      required: true,
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company',
     },
     documentType: String,
     extractionMethod: {
@@ -120,4 +129,4 @@ const extractionSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Extraction', extractionSchema);
+module.exports = mongoose.model('CuratedZone', curatedZoneSchema);

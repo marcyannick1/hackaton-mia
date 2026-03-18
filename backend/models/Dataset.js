@@ -15,16 +15,22 @@ const datasetSchema = new mongoose.Schema(
     },
     description: String,
     source: {
-      extractions: [
+      rawZone: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Extraction',
+          ref: 'RawZone',
         },
       ],
-      documents: [
+      cleanZone: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Document',
+          ref: 'CleanZone',
+        },
+      ],
+      curatedZone: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'CuratedZone',
         },
       ],
       dateCreated: {
@@ -77,6 +83,9 @@ const datasetSchema = new mongoose.Schema(
       enum: ['draft', 'processing', 'ready', 'training', 'archived'],
       default: 'draft',
     },
+
+
+    
     tags: [String],
     purpose: {
       type: String,

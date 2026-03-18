@@ -28,9 +28,9 @@ services:
       - ./backend:/app
       - /app/node_modules
     environment:
-      - MONGO_URI=mongodb://mongo:27017/hackathon
+      - MONGO_URI=mongodb+srv://hackathon:12345@cluster0.dpvfw3h.mongodb.net/hackathon?appName=Cluster0
     depends_on:
-      - mongo
+      - postgres
 
   # -------------------------
   # MONGODB
