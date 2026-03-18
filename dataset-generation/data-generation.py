@@ -125,8 +125,7 @@ def main():
     naf_bdd = get_naf_description()
     forme_juridique_bdd = get_forme_juridique_description()
     enseignes_connues = [
-        "Carrefour France", "Lidl", "Leclerc", "Auchan",
-        "Ikea", "Fnac", "Boulanger"
+        "Saint-Gobain", "EDF", "OVHCloud"
     ]
 
     results = []
@@ -141,7 +140,7 @@ def main():
         else:
             print(f"{enseigne} → Aucun résultat")
 
-    export_to_csv("./dataset-generation/entreprisesv2.csv", results)
+    export_to_csv("./dataset-generation/entreprises_cas_usage.csv", results)
     print("CSV généré avec succès ✅")
 
 
