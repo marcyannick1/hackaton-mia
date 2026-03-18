@@ -88,6 +88,7 @@ services:
 
   ocr:
     build: ./ocr/.
+    container_name: hackathon_ocr
     ports:
       - "8000:8000"
 
