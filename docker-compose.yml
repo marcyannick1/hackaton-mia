@@ -86,6 +86,11 @@ services:
       airflow webserver
       "
 
+  ocr:
+    build: ./ocr/.
+    ports:
+      - "8000:8000"
+
 volumes:
   mongo_data:
   postgres_data:
