@@ -55,7 +55,6 @@ exports.createDocument = async (fileData, metadata, userId) => {
       fileType = "image";
     }
 
-    // Création de l'instance Document
     const newDocument = new Document({
       filename: filename,
       originalName: originalname,
@@ -72,7 +71,6 @@ exports.createDocument = async (fileData, metadata, userId) => {
 
     const savedDocument = await newDocument.save();
 
-    // Création de l'entrée Extraction vide liée au Document
     const newExtraction = new Extraction({
       document: savedDocument._id,
       documentType: savedDocument.documentType,
@@ -81,9 +79,15 @@ exports.createDocument = async (fileData, metadata, userId) => {
 
     const savedExtraction = await newExtraction.save();
 
-    // Lier l'extraction au document
     savedDocument.extractedData = savedExtraction._id;
     await savedDocument.save();
+
+    if (company) {
+      const Company = require("../models/company.model");
+      await Company.findByIdAndUpdate(company, {
+        $push: { documents: savedDocument._id },
+      });
+    }
 
     return {
       error: false,
