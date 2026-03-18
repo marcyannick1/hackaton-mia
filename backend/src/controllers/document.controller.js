@@ -109,3 +109,25 @@ exports.deleteDocument = async (req, res) => {
     });
   }
 };
+
+exports.getDocumentById = async (req, res) => {
+  try {
+    const documentId = req.params.id;
+    const userId = req.user.userId;
+    const userRole = req.user.role;
+
+    const result = await documentService.getDocumentById(
+      documentId,
+      userId,
+      userRole,
+    );
+
+    return res.status(result.statusCode).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Erreur serveur lors de la récupération du document",
+      details: error.message,
+    });
+  }
+};

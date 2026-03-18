@@ -321,3 +321,44 @@ exports.deleteDocument = async (documentId, userId, userRole) => {
     };
   }
 };
+
+exports.getDocumentById = async (documentId, userId, userRole) => {
+  try {
+    const document =
+      await Document.findById(documentId).populate("extractedData");
+
+    if (!document) {
+      return {
+        error: true,
+        message: "Document introuvable",
+        statusCode: 404,
+      };
+    }
+
+    if (
+      userRole !== "admin" &&
+      document.uploadedBy.toString() !== userId.toString()
+    ) {
+      return {
+        error: true,
+        message:
+          "Accès refusé. Vous n'êtes pas autorisé à consulter ce document.",
+        statusCode: 403,
+      };
+    }
+
+    return {
+      error: false,
+      message: "Document récupéré avec succès",
+      data: document,
+      statusCode: 200,
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: "Erreur lors de la récupération du document",
+      details: error.message,
+      statusCode: 500,
+    };
+  }
+};
