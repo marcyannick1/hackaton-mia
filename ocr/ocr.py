@@ -16,7 +16,6 @@ app = FastAPI()
 def test():
     return {"Bienvenue sur l'API OCR"}
 
-
 @app.post("/ocr")
 async def ocr(file: UploadFile = File(...)):
     try:
@@ -36,9 +35,16 @@ async def ocr(file: UploadFile = File(...)):
             "rib": extract_rib_data
         }
         extracted = extractors.get(doc_type, lambda x: {})(ocr_full)
+        isNotNone = 0
+        for key, value in extracted.items():
+            print(f"{key}: {value}")
+            if value is not None:
+                isNotNone += 1
+        score = round(isNotNone/len(extracted) * 100)
         return {
             "type": doc_type,
             "pages": texts,
+            "extraction_score_on_100%": score,
             "full_text": ocr_full[:2000],
             "extracted": extracted
         }
