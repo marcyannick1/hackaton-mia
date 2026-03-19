@@ -35,11 +35,11 @@ def fetch_etablissement(enseigne):
 def extract_data(enseigne, etab,naf_bdd,forme_juridique_bdd):
     if not etab:
         return None
-
     siren = etab.get("siren", "N/A")
     siret = etab.get("siret", "N/A")
     nom = etab.get("uniteLegale", {}).get("denominationUniteLegale", "N/A")
     code_naf = etab.get("uniteLegale", {}).get("activitePrincipaleUniteLegale","N/A")
+    date_creation = etab.get("dateCreationEtablissement","N/A")
     intitule_naf = naf_bdd[naf_bdd["Code"] == code_naf]["Intitulé"].values[0]
     categorie_juridique = etab.get("uniteLegale", {}).get("categorieJuridiqueUniteLegale","N/A")
     intitule_categorie_juridique = forme_juridique_bdd[forme_juridique_bdd["Code"] == str(categorie_juridique)]["Libellé"].values[0]
@@ -53,11 +53,14 @@ def extract_data(enseigne, etab,naf_bdd,forme_juridique_bdd):
 
     ville = adresse_data.get("libelleCommuneEtablissement", "N/A")
     code_postal = adresse_data.get("codePostalEtablissement", "N/A")
+    cle_tva = (12 + 3 * (int(siren) % 97)) % 97
+    num_tva = "FR"+ str(cle_tva) + siren
 
     return [
         enseigne,
         siren,
         siret,
+        date_creation,
         nom,
         adresse,
         ville,
@@ -65,7 +68,8 @@ def extract_data(enseigne, etab,naf_bdd,forme_juridique_bdd):
         code_naf,
         intitule_naf,
         categorie_juridique,
-        intitule_categorie_juridique
+        intitule_categorie_juridique,
+        num_tva
     ]
 
 
@@ -78,6 +82,7 @@ def export_to_csv(filename, data_rows):
             "enseigne",
             "siren",
             "siret",
+            "date_creation",
             "nom",
             "adresse",
             "ville",
@@ -85,7 +90,8 @@ def export_to_csv(filename, data_rows):
             "code_naf",
             "intitule_naf",
             "categorie_juridique",
-            "intitule_categorie_juridique"
+            "intitule_categorie_juridique",
+            "num_tva"
         ])
 
         writer.writerows(data_rows)
@@ -119,8 +125,7 @@ def main():
     naf_bdd = get_naf_description()
     forme_juridique_bdd = get_forme_juridique_description()
     enseignes_connues = [
-        "Carrefour France", "Lidl", "Leclerc", "Auchan",
-        "Ikea", "Fnac", "Boulanger"
+        "Saint-Gobain", "EDF", "OVHCloud"
     ]
 
     results = []
@@ -135,7 +140,7 @@ def main():
         else:
             print(f"{enseigne} → Aucun résultat")
 
-    export_to_csv("./dataset-generation/entreprisesv2.csv", results)
+    export_to_csv("./dataset-generation/entreprises_cas_usage.csv", results)
     print("CSV généré avec succès ✅")
 
 
