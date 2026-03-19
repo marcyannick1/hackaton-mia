@@ -90,6 +90,11 @@ Cœur de l'application : Upload, OCR automatisé, et Réconciliation.
   - **Permissions** : Propriétaire (`uploadedBy`) ou `admin`.
   - **Description** : Suppression du document bruts et des métadonnées associées.
 
+- **`PUT /documents/:id/validate`**
+  - **Permissions** : `admin` uniquement.
+  - **Description** : **[NOUVEAU]** Permet à un Admin de valider (`status: "validated"`) ou rejeter (`status: "rejected"`) manuellement un document suspect ou litigieux.
+  - **Body (JSON)** : `{ "status": "validated" }` ou `{ "status": "rejected" }`
+
 ---
 
 ## 🏢 Companies (`/companies`)
