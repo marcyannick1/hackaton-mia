@@ -1,320 +1,444 @@
-// ===================================
-// MongoDB Collections - Usage Examples
-// ===================================
+# Exemples de Réponses API (Payloads)
 
-// 1. CREATE USER (Operator)
-// ===================================
-POST http://localhost:3000/api/users
-Content-Type: application/json
+Ce fichier fournit au Frontend des exemples complets et réels de ce que l'API renvoie, incluant tous les champs générés par Mongoose (dates, versions, statuts de traitement, etc.).
 
+---
+
+## 🔐 Auth (`/auth`)
+
+### `POST /auth/sign-up`
+
+**Réponse (201 Created)** :
+
+```json
 {
-  "username": "ahmed_operator",
-  "email": "ahmed@company.com",
-  "password": "SecurePass123!",
-  "role": "operator",
-  "department": "Accounting"
+  "error": false,
+  "message": "Utilisateur créé avec succès.",
+  "statusCode": 201
 }
+```
 
-// Response:
-// {
-//   "_id": "507f1f77bcf86cd799439011",
-//   "username": "ahmed_operator",
-//   "email": "ahmed@company.com",
-//   "role": "operator",
-//   "department": "Accounting",
-//   "isActive": true,
-//   "createdAt": "2026-03-16T10:30:00Z"
-// }
+### `POST /auth/sign-in`
 
+**Réponse (200 OK)** :
 
-// 2. CREATE COMPANY (Supplier)
-// ===================================
-POST http://localhost:3000/api/companies
-Content-Type: application/json
-
+```json
 {
-  "name": "Acme Corporation France",
-  "siret": "12345678901234",
-  "siren": "123456789",
-  "tva": "FR12345678901",
-  "address": {
-    "street": "123 Rue de Paris",
-    "postalCode": "75001",
-    "city": "Paris",
-    "country": "FR"
+  "error": false,
+  "message": "Vous êtes désormais connecté.",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR..."
   },
-  "email": "contact@acme.fr",
-  "phone": "+33 1 23 45 67 89",
-  "website": "www.acme.fr",
-  "iban": "FR1420041010050500013M02606",
-  "bic": "BNAGFRPPXXX",
-  "complianceStatus": "unknown"
+  "statusCode": 200
 }
+```
 
-// Response:
-// {
-//   "_id": "507f1f77bcf86cd799439012",
-//   "name": "Acme Corporation France",
-//   "siret": "12345678901234",
-//   "complianceStatus": "unknown",
-//   "documents": [],
-//   "createdAt": "2026-03-16T10:35:00Z"
-// }
+### `GET /auth/me`
 
+**Réponse (200 OK)** :
 
-// 3. UPLOAD DOCUMENT (Invoice)
-// ===================================
-POST http://localhost:3000/api/documents
-Content-Type: application/json
-
+```json
 {
-  "filename": "67890_invoice_20260315.pdf",
-  "originalName": "facture_acme_mars_2026.pdf",
-  "fileSize": 245000,
-  "filePath": "/uploads/raw/67890_invoice_20260315.pdf",
-  "fileType": "pdf",
-  "mimeType": "application/pdf",
-  "documentType": "invoice",
-  "company": "507f1f77bcf86cd799439012",
-  "uploadedBy": "507f1f77bcf86cd799439011",
-  "storageZone": "raw"
-}
-
-// Response:
-// {
-//   "_id": "507f1f77bcf86cd799439013",
-//   "filename": "67890_invoice_20260315.pdf",
-//   "documentType": "invoice",
-//   "company": "507f1f77bcf86cd799439012",
-//   "uploadedBy": "507f1f77bcf86cd799439011",
-//   "status": "uploaded",
-//   "confidence": 0,
-//   "storageZone": "raw",
-//   "isValidated": false,
-//   "createdAt": "2026-03-16T10:40:00Z"
-// }
-
-
-// 4. OCR PROCESSING (via Airflow)
-// ===================================
-// Status should be updated after OCR:
-
-PATCH http://localhost:3000/api/documents/507f1f77bcf86cd799439013
-Content-Type: application/json
-
-{
-  "status": "completed",
-  "storageZone": "clean",
-  "ocrText": "ACME CORPORATION\nSIRET: 12345678901234\nFacture N°: 2026-001\ndate: 15/03/2026\nMontant HT: 1000.00 EUR\nTVA 20%: 200.00 EUR\nMontant TTC: 1200.00 EUR\nChèque destinataire: ACME...",
-  "confidence": 92
-}
-
-
-// 5. CREATE EXTRACTION (After OCR)
-// ===================================
-POST http://localhost:3000/api/extractions
-Content-Type: application/json
-
-{
-  "document": "507f1f77bcf86cd799439013",
-  "documentType": "invoice",
-  "extractionMethod": "ocr",
-  "extractedData": {
-    "siret": "12345678901234",
-    "siren": "123456789",
-    "tva": "FR12345678901",
-    "companyName": "Acme Corporation",
-    "issueDate": "2026-03-15T00:00:00Z"
+  "error": false,
+  "message": "Profil récupéré avec succès.",
+  "data": {
+    "_id": "69b98bb9bf30ba2fa0c28cca",
+    "username": "Admin Utilisateur",
+    "email": "admin@exemple.com",
+    "role": "admin",
+    "department": "Direction",
+    "isActive": true,
+    "lastLogin": "2026-03-18T15:26:41.955Z",
+    "createdAt": "2026-03-17T17:13:29.313Z",
+    "updatedAt": "2026-03-18T15:26:41.956Z"
   },
-  "invoiceData": {
-    "invoiceNumber": "2026-001",
-    "issuer": "Acme Corporation",
-    "issuerSiret": "12345678901234",
-    "issuerTva": "FR12345678901",
-    "issuerAddress": "123 Rue de Paris, 75001 Paris",
-    "amount": {
-      "ht": 1000,
-      "ttc": 1200,
-      "tva": 200
+  "statusCode": 200
+}
+```
+
+---
+
+## 👥 Users (`/users`)
+
+### `GET /users`
+
+**Réponse (200 OK)** :
+
+```json
+{
+  "error": false,
+  "message": "Utilisateurs récupérés avec succès",
+  "data": [
+    {
+      "_id": "69b98bb9bf30ba2fa0c28cca",
+      "username": "Admin Utilisateur",
+      "email": "admin@exemple.com",
+      "role": "admin",
+      "department": "Direction",
+      "isActive": true,
+      "lastLogin": "2026-03-18T16:04:41.478Z",
+      "createdAt": "2026-03-17T17:13:29.313Z",
+      "updatedAt": "2026-03-18T16:04:41.478Z",
+      "__v": 0
     },
-    "issueDate": "2026-03-15T00:00:00Z",
-    "dueDate": "2026-04-14T00:00:00Z",
-    "currency": "EUR",
-    "lines": [
-      {
-        "description": "Consulting Services",
-        "quantity": 10,
-        "unitPrice": 100,
-        "amount": 1000
+    {
+      "_id": "69bacc0fab41c5c4fedf4b09",
+      "username": "Operateur Test",
+      "email": "test@exemple.com",
+      "role": "operator",
+      "department": "General",
+      "isActive": true,
+      "lastLogin": null,
+      "createdAt": "2026-03-18T16:00:15.670Z",
+      "updatedAt": "2026-03-18T16:00:15.670Z",
+      "__v": 0
+    }
+  ]
+}
+```
+
+---
+
+## 📄 Documents & OCR (`/documents`)
+
+### `POST /documents/upload`
+
+**Réponse (201 Created)** :  
+_L'OCR a traité le document en arrière-plan et a initié l'extraction._
+
+```json
+{
+  "error": false,
+  "message": "Document uploadé avec succès",
+  "data": {
+    "document": {
+      "filename": "invoice-1773847589679-308763739.pdf",
+      "originalName": "FACTURE_EXEMPLE.pdf",
+      "fileSize": 6771,
+      "filePath": "/app/src/uploads/invoice-1773847589679-308763739.pdf",
+      "fileType": "pdf",
+      "mimeType": "application/pdf",
+      "documentType": "rib",
+      "company": "69bac4269ce8acd84c5bb77c",
+      "uploadedBy": "69b98bb9bf30ba2fa0c28cca",
+      "status": "completed",
+      "ocrText": "ENTREPRISE EXEMPLE\n\n2 RUE DE LA PAIX\n\n75001 PARIS\n\nSiret : 12345678901234 Code Naf : 2042Z...",
+      "confidence": 0,
+      "isValidated": false,
+      "storageZone": "raw",
+      "errors": [],
+      "_id": "69bac4259ce8acd84c5bb773",
+      "createdAt": "2026-03-18T15:26:29.690Z",
+      "updatedAt": "2026-03-18T15:26:30.850Z",
+      "__v": 0,
+      "extractedData": "69bac4259ce8acd84c5bb775"
+    },
+    "extractionId": "69bac4259ce8acd84c5bb775"
+  },
+  "statusCode": 201
+}
+```
+
+### `GET /documents/me`
+
+**Réponse (200 OK)** :  
+_Note : Renvoie uniquement les documents appartenant à l'utilisateur connecté._
+
+```json
+{
+  "error": false,
+  "message": "Documents récupérés avec succès",
+  "data": [
+    {
+      "_id": "69babddc65b18ccb90220440",
+      "filename": "invoice-1773845980312-233951215.pdf",
+      "originalName": "FICHIER_EXEMPLE.pdf",
+      "fileSize": 6771,
+      "filePath": "/app/src/uploads/invoice-1773845980312-233951215.pdf",
+      "fileType": "pdf",
+      "mimeType": "application/pdf",
+      "documentType": "rib",
+      "company": null,
+      "uploadedBy": "69b98bb9bf30ba2fa0c28cca",
+      "status": "completed",
+      "ocrText": "ENTREPRISE EXEMPLE\n\n2 RUE DE LA PAIX\n\n75001 PARIS\n\nSiret : 12345678901234",
+      "confidence": 0,
+      "isValidated": false,
+      "storageZone": "raw",
+      "errors": [],
+      "createdAt": "2026-03-18T14:59:40.326Z",
+      "updatedAt": "2026-03-18T14:59:41.400Z",
+      "__v": 0,
+      "extractedData": {
+        "extractedData": {
+          "siret": null,
+          "tva": null
+        },
+        "invoiceData": {
+          "currency": "EUR",
+          "lines": []
+        },
+        "ribData": {
+          "iban": null,
+          "bic": null,
+          "accountHolder": null,
+          "bankName": null
+        },
+        "_id": "69babddc65b18ccb90220442",
+        "document": "69babddc65b18ccb90220440",
+        "documentType": "rib",
+        "extractionMethod": "ocr",
+        "inconsistencies": [],
+        "status": "in_review",
+        "processingLog": [],
+        "createdAt": "2026-03-18T14:59:40.332Z",
+        "updatedAt": "2026-03-18T14:59:41.403Z",
+        "__v": 0
       }
-    ]
-  },
-  "qualityMetrics": {
-    "confidence": 92,
-    "pageCount": 1,
-    "qualityNotes": "Good quality scan"
-  },
-  "inconsistencies": [],
-  "status": "pending"
-}
-
-// Response:
-// {
-//   "_id": "507f1f77bcf86cd799439014",
-//   "document": "507f1f77bcf86cd799439013",
-//   "documentType": "invoice",
-//   "extractedData": { ... },
-//   "invoiceData": { ... },
-//   "inconsistencies": [],
-//   "status": "pending",
-//   "createdAt": "2026-03-16T10:45:00Z"
-// }
-
-
-// 6. VALIDATION & INCONSISTENCY DETECTION
-// ===================================
-// Update extraction with validation results:
-
-PATCH http://localhost:3000/api/extractions/507f1f77bcf86cd799439014
-Content-Type: application/json
-
-{
-  "inconsistencies": [
-    {
-      "type": "SIRET_MISMATCH",
-      "description": "SIRET on invoice matches company SIRET ✓",
-      "severity": "info"
-    },
-    {
-      "type": "AMOUNT_CHECK",
-      "description": "Amount calculation verified: 1000 + 200 = 1200 ✓",
-      "severity": "info"
     }
-  ],
-  "status": "approved",
-  "reviewedBy": "507f1f77bcf86cd799439011",
-  "reviewDate": "2026-03-16T11:00:00Z",
-  "reviewNotes": "All data validated successfully. Ready for CRM import."
+  ]
 }
+```
 
+### `GET /documents`
 
-// 7. UPLOAD ATTESTATION (URSSAF)
-// ===================================
-POST http://localhost:3000/api/documents
-Content-Type: application/json
+**Réponse (200 OK)** :  
+_Note : Observez la richesse du sous-objet `extractedData` peuplé par Mongoose `populate()`._
 
+```json
 {
-  "filename": "67890_attestation_urssaf_20260315.pdf",
-  "originalName": "attestation_vigilance_urssaf.pdf",
-  "fileSize": 120000,
-  "filePath": "/uploads/raw/67890_attestation_urssaf.pdf",
-  "fileType": "pdf",
-  "documentType": "attestation_urssaf",
-  "company": "507f1f77bcf86cd799439012",
-  "uploadedBy": "507f1f77bcf86cd799439011",
-  "storageZone": "raw"
+  "error": false,
+  "message": "Documents récupérés avec succès",
+  "data": [
+    {
+      "_id": "69bac4259ce8acd84c5bb773",
+      "filename": "invoice-1773847589679-308763739.pdf",
+      "originalName": "FACTURE_EXEMPLE.pdf",
+      "fileSize": 6771,
+      "filePath": "/app/src/uploads/invoice-1773847589679-308763739.pdf",
+      "fileType": "pdf",
+      "mimeType": "application/pdf",
+      "documentType": "rib",
+      "company": "69bac4269ce8acd84c5bb77c",
+      "uploadedBy": "69b98bb9bf30ba2fa0c28cca",
+      "status": "completed",
+      "ocrText": "ENTREPRISE EXEMPLE\n\n2 RUE DE LA PAIX\n\n75001 PARIS\n\nSiret : 12345678901234",
+      "confidence": 0,
+      "isValidated": false,
+      "storageZone": "raw",
+      "errors": [],
+      "createdAt": "2026-03-18T15:26:29.690Z",
+      "updatedAt": "2026-03-18T15:26:30.850Z",
+      "__v": 0,
+      "extractedData": {
+        "extractedData": {
+          "siret": "12345678901234",
+          "tva": null
+        },
+        "invoiceData": {
+          "currency": "EUR",
+          "lines": []
+        },
+        "ribData": {
+          "iban": null,
+          "bic": null,
+          "accountHolder": null,
+          "bankName": null
+        },
+        "_id": "69bac4259ce8acd84c5bb775",
+        "document": "69bac4259ce8acd84c5bb773",
+        "documentType": "rib",
+        "extractionMethod": "ocr",
+        "inconsistencies": [],
+        "status": "in_review",
+        "processingLog": [],
+        "createdAt": "2026-03-18T15:26:29.696Z",
+        "updatedAt": "2026-03-18T15:26:30.837Z",
+        "__v": 0
+      }
+    }
+  ]
 }
+```
 
+### `GET /documents/:id`
 
-// 8. EXTRACT ATTESTATION DATA
-// ===================================
-POST http://localhost:3000/api/extractions
-Content-Type: application/json
+**Réponse (200 OK)** :
+_Note : Récupère toutes les informations d'un document spécifique ainsi que son extractedData._
 
+```json
 {
-  "document": "507f1f77bcf86cd799439015",
-  "documentType": "attestation_urssaf",
-  "extractionMethod": "ocr",
-  "extractedData": {
+  "error": false,
+  "message": "Document récupéré avec succès",
+  "data": {
+    "_id": "69bac4259ce8acd84c5bb773",
+    "filename": "invoice-1773847589679-308763739.pdf",
+    "originalName": "FICHIER_EXEMPLE.pdf",
+    "fileSize": 6771,
+    "filePath": "/app/src/uploads/invoice-1773847589679-308763739.pdf",
+    "fileType": "pdf",
+    "mimeType": "application/pdf",
+    "documentType": "rib",
+    "company": "69bac4269ce8acd84c5bb77c",
+    "uploadedBy": "69b98bb9bf30ba2fa0c28cca",
+    "status": "completed",
+    "ocrText": "ENTREPRISE EXEMPLE\n\n2 RUE DE LA PAIX\n\n75001 PARIS\n\nSiret : 12345678901234 Code Naf : 2042Z\nUrssaf/Msa : 287000005520692814\n\nMonsieur John DOE\n2 RUE DE LA PAIX\n75001 PARIS\n\nENTREPRISE EXEMPLE\n\nSalaire de base (55 %) 151.67 991.01\nSalaire brut 991.01\nTotal des cotisations et contributions 18.78 24.22.\nMontant net social 972.23\nNet payé 972.23",
+    "createdAt": "2026-03-18T15:26:29.690Z",
+    "updatedAt": "2026-03-18T15:26:30.850Z",
+    "__v": 0,
+    "extractedData": {
+      "_id": "69bac4259ce8acd84c5bb775",
+      "document": "69bac4259ce8acd84c5bb773",
+      "documentType": "rib",
+      "extractionMethod": "ocr",
+      "status": "in_review",
+      "extractedData": {
+        "siret": "12345678901234",
+        "tva": null
+      },
+      "invoiceData": {
+        "currency": "EUR",
+        "lines": []
+      },
+      "ribData": {
+        "iban": null,
+        "bic": null,
+        "accountHolder": null,
+        "bankName": null
+      },
+      "inconsistencies": [],
+      "processingLog": [],
+      "createdAt": "2026-03-18T15:26:29.696Z",
+      "updatedAt": "2026-03-18T15:26:30.837Z",
+      "__v": 0
+    }
+  },
+  "statusCode": 200
+}
+```
+
+---
+
+## 🏢 Companies (`/companies`)
+
+### `POST /companies`
+
+**Réponse (201 Created)** :
+
+```json
+{
+  "error": false,
+  "message": "Entreprise créée avec succès",
+  "data": {
+    "name": "BTP Services SAS",
     "siret": "12345678901234",
-    "companyName": "Acme Corporation"
-  },
-  "attestationData": {
-    "attestationType": "urssaf",
-    "issuer": "URSSAF",
-    "issuerSiret": "12345678901234",
-    "issueDate": "2025-06-01T00:00:00Z",
-    "expiryDate": "2026-12-31T23:59:59Z",
-    "status": "valid"
-  },
-  "qualityMetrics": {
-    "confidence": 98,
-    "pageCount": 1
-  },
-  "status": "pending"
-}
-
-
-// 9. DETECT EXPIRATION ERROR
-// ===================================
-// Example: If attestation is expired
-
-PATCH http://localhost:3000/api/extractions/507f1f77bcf86cd799439016
-Content-Type: application/json
-
-{
-  "attestationData": {
-    "attestationType": "urssaf",
-    "issuer": "URSSAF",
-    "issuerSiret": "12345678901234",
-    "issueDate": "2024-06-01T00:00:00Z",
-    "expiryDate": "2025-12-31T23:59:59Z",
-    "status": "expired"
-  },
-  "inconsistencies": [
-    {
-      "type": "DATE_EXPIRATION",
-      "description": "URSSAF attestation expired on 2025-12-31",
-      "severity": "error"
-    }
-  ],
-  "status": "rejected",
-  "reviewedBy": "507f1f77bcf86cd799439011",
-  "reviewNotes": "Attestation expired. Company is non-compliant."
-}
-
-// Update company compliance status:
-PATCH http://localhost:3000/api/companies/507f1f77bcf86cd799439012
-Content-Type: application/json
-
-{
-  "complianceStatus": "non-compliant",
-  "attestationExpiry": {
-    "urssaf": "2025-12-31T23:59:59Z"
+    "address": {
+      "country": "FR"
+    },
+    "email": "contact@exemple.fr",
+    "complianceStatus": "unknown",
+    "documents": [],
+    "_id": "69bacdc0ab41c5c4fedf4b12",
+    "createdAt": "2026-03-18T16:07:28.856Z",
+    "updatedAt": "2026-03-18T16:07:28.856Z",
+    "__v": 0
   }
 }
+```
 
+### `GET /companies`
 
-// 10. GET ALL DATA (Query Examples)
-// ===================================
+**Réponse (200 OK)** :
+_(Notez comment la propriété `documents` est peuplée avec la liste de tous les documents rattachés)_
 
-// Get all users
-GET http://localhost:3000/api/users
+```json
+{
+  "error": false,
+  "message": "Entreprises récupérées avec succès",
+  "data": [
+    {
+      "address": {
+        "country": "FR"
+      },
+      "_id": "69ba704d136446c6d990b26c",
+      "name": "BTP Services SAS",
+      "siret": "12345678905555",
+      "email": "contact@exemple.fr",
+      "complianceStatus": "unknown",
+      "documents": [],
+      "createdAt": "2026-03-18T09:28:45.564Z",
+      "updatedAt": "2026-03-18T09:38:07.139Z",
+      "__v": 0
+    }
+  ]
+}
+```
 
-// Get all companies
-GET http://localhost:3000/api/companies
+### `GET /companies/:id`
 
-// Get all documents (with relationships)
-GET http://localhost:3000/api/documents
+**Réponse (200 OK)** :
+_(L'objet document est maintenant lui-même "deep-populated" avec `extractedData` !)_
 
-// Get all extractions (with validation info)
-GET http://localhost:3000/api/extractions
-
-
-// ===================================
-// INTEGRATION WITH MIA SYSTEMS
-// ===================================
-
-// Once extraction is APPROVED (status: 'approved'):
-// The document moves to 'curated' zone and can be:
-//
-// 1. Pushed to CRM System
-//    - Invoice data directly to ERP
-//    - Company data to supplier database
-//
-// 2. Pushed to Conformity Tool
-//    - Compliance status alerts
-//    - Expiration date warnings
-//
-// 3. Archived for audit
-//    - Full extraction + document trail
+```json
+{
+  "error": false,
+  "message": "Entreprise récupérée avec succès",
+  "data": {
+    "address": {
+      "country": "FR"
+    },
+    "_id": "69bac4269ce8acd84c5bb77c",
+    "name": "Nouveau Fournisseur",
+    "siret": "12345678901234",
+    "complianceStatus": "unknown",
+    "documents": [
+      {
+        "_id": "69bac4259ce8acd84c5bb773",
+        "filename": "invoice-1773847589679-308763739.pdf",
+        "originalName": "FACTURE_EXEMPLE.pdf",
+        "fileSize": 6771,
+        "filePath": "/app/src/uploads/invoice-1773847589679-308763739.pdf",
+        "fileType": "pdf",
+        "mimeType": "application/pdf",
+        "documentType": "rib",
+        "company": "69bac4269ce8acd84c5bb77c",
+        "uploadedBy": "69b98bb9bf30ba2fa0c28cca",
+        "status": "completed",
+        "ocrText": "ENTREPRISE EXEMPLE...",
+        "createdAt": "2026-03-18T15:26:29.690Z",
+        "updatedAt": "2026-03-18T15:26:30.850Z",
+        "__v": 0,
+        "extractedData": {
+          "extractedData": {
+            "siret": "12345678901234",
+            "tva": null
+          },
+          "invoiceData": {
+            "currency": "EUR",
+            "lines": []
+          },
+          "ribData": {
+            "iban": null,
+            "bic": null,
+            "accountHolder": null,
+            "bankName": null
+          },
+          "_id": "69bac4259ce8acd84c5bb775",
+          "document": "69bac4259ce8acd84c5bb773",
+          "documentType": "rib",
+          "extractionMethod": "ocr",
+          "inconsistencies": [],
+          "status": "in_review",
+          "processingLog": [],
+          "createdAt": "2026-03-18T15:26:29.696Z",
+          "updatedAt": "2026-03-18T15:26:30.837Z",
+          "__v": 0
+        }
+      }
+    ],
+    "createdAt": "2026-03-18T15:26:30.847Z",
+    "updatedAt": "2026-03-18T15:26:30.851Z",
+    "__v": 0
+  }
+}
+```

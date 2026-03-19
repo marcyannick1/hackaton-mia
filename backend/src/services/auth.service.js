@@ -92,3 +92,30 @@ exports.SignIn = async (data) => {
     };
   }
 };
+
+exports.GetMe = async (userId) => {
+  try {
+    const user = await User.findById(userId).select("-__v");
+
+    if (!user) {
+      return {
+        error: true,
+        message: "Utilisateur introuvable.",
+        statusCode: 404,
+      };
+    }
+
+    return {
+      error: false,
+      message: "Profil récupéré avec succès.",
+      data: user,
+      statusCode: 200,
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: error.message || "Erreur serveur.",
+      statusCode: 500,
+    };
+  }
+};

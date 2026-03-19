@@ -55,7 +55,12 @@ exports.getAllCompanies = async () => {
 
 exports.getCompanyById = async (companyId) => {
   try {
-    const company = await Company.findById(companyId).populate("documents");
+    const company = await Company.findById(companyId).populate({
+      path: "documents",
+      populate: {
+        path: "extractedData",
+      },
+    });
 
     if (!company) {
       return {

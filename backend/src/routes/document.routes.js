@@ -15,6 +15,7 @@ router.get(
 );
 router.get("/me", authenticate, documentController.getMyDocuments);
 
+router.get("/:id", authenticate, documentController.getDocumentById);
 router.delete("/:id", authenticate, documentController.deleteDocument);
 
 router.post(

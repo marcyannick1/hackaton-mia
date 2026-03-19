@@ -3,6 +3,7 @@
 ## 🚀 Architecture
 
 ### Stack Technologique
+
 - **Node.js + Express** - API REST
 - **MongoDB** - Base de données NoSQL
 - **Mongoose** - ODM (Object Document Mapper)
@@ -12,12 +13,12 @@
 
 La plateforme utilise 4 collections principales:
 
-| Collection | Rôle | Fields Clés |
-|-----------|------|-------------|
-| **users** | Opérateurs, admins | username, email, role, department |
-| **companies** | Fournisseurs | siret, siren, tva, complianceStatus |
-| **documents** | Pièces comptables | filename, documentType, status, storageZone |
-| **extractions** | Données OCR | invoiceData, attestationData, inconsistencies |
+| Collection      | Rôle               | Fields Clés                                   |
+| --------------- | ------------------ | --------------------------------------------- |
+| **users**       | Opérateurs, admins | username, email, role, department             |
+| **companies**   | Fournisseurs       | siret, siren, tva, complianceStatus           |
+| **documents**   | Pièces comptables  | filename, documentType, status, storageZone   |
+| **extractions** | Données OCR        | invoiceData, attestationData, inconsistencies |
 
 📖 **Documentation détaillée**: Voir [COLLECTIONS.md](./COLLECTIONS.md)
 
@@ -26,6 +27,7 @@ La plateforme utilise 4 collections principales:
 ## 📦 Installation
 
 ### Prérequis
+
 - Node.js (v16+)
 - Docker & Docker Compose
 - Git
@@ -44,6 +46,7 @@ cp .env.example .env
 ```
 
 Fichier `.env`:
+
 ```env
 MONGO_URI=mongodb://mongo:27017/hackathon
 PORT=3000
@@ -53,6 +56,7 @@ NODE_ENV=development
 ### 3️⃣ Lancer l'application
 
 #### En local (développement)
+
 ```bash
 npm run dev
 ```
@@ -60,107 +64,9 @@ npm run dev
 L'API sera disponible à: **http://localhost:3000**
 
 #### Avec Docker Compose (du répertoire racine)
+
 ```bash
 docker-compose up --build
-```
-
----
-
-## 🔌 API Endpoints
-
-### Health Check
-```bash
-GET /health
-```
-
-### Users
-```bash
-# Create user
-POST /api/users
-Content-Type: application/json
-
-{
-  "username": "operator1",
-  "email": "op1@company.com",
-  "password": "securepassword",
-  "role": "operator",
-  "department": "Accounting"
-}
-
-# List users
-GET /api/users
-```
-
-### Companies
-```bash
-# Create company
-POST /api/companies
-Content-Type: application/json
-
-{
-  "name": "Acme Corp",
-  "siret": "12345678901234",
-  "siren": "123456789",
-  "tva": "FR12345678901",
-  "email": "contact@acme.com",
-  "complianceStatus": "unknown"
-}
-
-# List companies
-GET /api/companies
-```
-
-### Documents
-```bash
-# Upload document
-POST /api/documents
-Content-Type: application/json
-
-{
-  "filename": "invoice_001.pdf",
-  "originalName": "facture_mars.pdf",
-  "fileSize": 245000,
-  "fileType": "pdf",
-  "documentType": "invoice",
-  "company": "COMPANY_ID",
-  "uploadedBy": "USER_ID",
-  "storageZone": "raw"
-}
-
-# List documents
-GET /api/documents
-```
-
-### Extractions
-```bash
-# Create extraction (après OCR)
-POST /api/extractions
-Content-Type: application/json
-
-{
-  "document": "DOCUMENT_ID",
-  "documentType": "invoice",
-  "extractionMethod": "ocr",
-  "extractedData": {
-    "siret": "12345678901234",
-    "companyName": "Acme Corp",
-    "issueDate": "2026-03-15T00:00:00Z"
-  },
-  "invoiceData": {
-    "invoiceNumber": "2026-001",
-    "amount": {
-      "ht": 1000,
-      "tva": 200,
-      "ttc": 1200
-    }
-  },
-  "qualityMetrics": {
-    "confidence": 92
-  }
-}
-
-# List extractions
-GET /api/extractions
 ```
 
 ---
@@ -213,32 +119,37 @@ backend/
 
 L'extraction détecte automatiquement:
 
-| Erreur | Exemple | Exemple Récup |
-|--------|---------|---------|
-| **SIRET Mismatch** | SIRET facture ≠ SIRET attestation | ❌ Blocker |
-| **TVA Invalid** | TVA ne correspond pas au SIRET | ❌ Blocker |
-| **Date Expiration** | Attestation URSSAF expirée | ⚠️ Warning |
-| **Montant Incohérent** | HT + TVA ≠ TTC | ❌ Blocker |
-| **Doublon Document** | Facture déjà importée | ⚠️ Warning |
+| Erreur                 | Exemple                           | Exemple Récup |
+| ---------------------- | --------------------------------- | ------------- |
+| **SIRET Mismatch**     | SIRET facture ≠ SIRET attestation | ❌ Blocker    |
+| **TVA Invalid**        | TVA ne correspond pas au SIRET    | ❌ Blocker    |
+| **Date Expiration**    | Attestation URSSAF expirée        | ⚠️ Warning    |
+| **Montant Incohérent** | HT + TVA ≠ TTC                    | ❌ Blocker    |
+| **Doublon Document**   | Facture déjà importée             | ⚠️ Warning    |
 
 ---
 
 ## 🛠️ Développement
 
 ### Mode Watch (nodemon)
+
 ```bash
 npm run dev
 ```
 
 ### Logs MongoDB
+
 Le serveur affiche la connexion MongoDB:
+
 ```
 ✓ MongoDB connected successfully
 ✓ Server running at http://localhost:3000/
 ```
 
 ### Tests API
+
 Utiliser Postman, Insomnia ou curl:
+
 ```bash
 curl http://localhost:3000/health
 ```
@@ -284,18 +195,21 @@ Le Frontend React peut:
 ## 🆘 Troubleshooting
 
 ### Erreur: "MongoDB connection error"
+
 ```
 ✗ Vérifier que MongoDB est lancé
 ✗ Vérifier MONGO_URI dans .env
 ```
 
 ### Erreur: "Port 3000 already in use"
+
 ```
 # Changer PORT en .env
 PORT=3001
 ```
 
 ### Reset complet
+
 ```bash
 docker-compose down -v  # Supprime volumes
 docker-compose up --build
