@@ -16,7 +16,7 @@ Ce document décrit la structure des 4 collections MongoDB créées pour la plat
   "username": "string (unique, required)",
   "email": "string (unique, required, validated)",
   "password": "string (6+ chars, not returned by default)",
-  "role": "enum: ['admin', 'operator', 'viewer']",
+  "role": "enum: ['admin', 'fournisseur']",
   "department": "string",
   "isActive": "boolean",
   "lastLogin": "date",
@@ -31,7 +31,7 @@ Ce document décrit la structure des 4 collections MongoDB créées pour la plat
   "_id": "507f1f77bcf86cd799439011",
   "username": "ahmed_op",
   "email": "ahmed@company.com",
-  "role": "operator",
+  "role": "fournisseur",
   "department": "Accounting",
   "isActive": true,
   "lastLogin": "2026-03-16T10:30:00Z"
