@@ -47,24 +47,10 @@ export default function LoginForm() {
             {authLoading ? <svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/><path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : "Se connecter"}
           </button>
         </form>
-        <div className="mt-6 pt-5 border-t border-slate-100">
-          <p className="text-xs text-slate-400 mb-3 font-medium uppercase tracking-wide">Comptes de demonstration</p>
-          <div className="space-y-2">
-            {[{ label: "Administrateur", email: "admin@docflow.fr", password: "admin123" }, { label: "Operateur", email: "operateur@docflow.fr", password: "ope123" }].map(c => (
-              <div key={c.email} onClick={() => { setEmail(c.email); setPassword(c.password); setError(""); }} className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 hover:bg-emerald-50 border border-slate-100 cursor-pointer transition-all group">
-                <div>
-                  <p className="text-xs font-medium text-slate-700 group-hover:text-emerald-700">{c.label}</p>
-                  <p className="text-xs text-slate-400">{c.email}</p>
-                </div>
-                <svg width="14" height="14" className="text-slate-300 group-hover:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-slate-400">Pas encore de compte ?{" "}
-              <Link to="/register" className="text-emerald-600 hover:text-emerald-800 font-medium transition-colors">S inscrire</Link>
-            </p>
-          </div>
+        <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+          <p className="text-xs text-slate-400">Pas encore de compte ?{" "}
+            <Link to="/register" className="text-emerald-600 hover:text-emerald-800 font-medium transition-colors">S inscrire</Link>
+          </p>
         </div>
       </div>
     </div>
