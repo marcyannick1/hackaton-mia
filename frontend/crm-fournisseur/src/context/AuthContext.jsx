@@ -1,86 +1,137 @@
-import { createContext, useState } from "react";
-import { USERS, FOURNISSEURS } from "../data/fournisseurs.js";
+import { createContext, useState, useEffect } from "react";
+import { authAPI, companyAPI } from "../services/api.js";
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [users, setUsers] = useState(USERS);
-  const [fournisseurs, setFournisseurs] = useState(FOURNISSEURS);
   const [user, setUser] = useState(() => {
     try {
       const s = localStorage.getItem("crm_user");
       return s ? JSON.parse(s) : null;
     } catch { return null; }
   });
+  const [fournisseurs, setFournisseurs] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const login = (email, password) => {
-    const found = users.find(u => u.email === email && u.password === password);
-    if (found) {
-      const { password: _, ...safe } = found;
-      setUser(safe);
-      localStorage.setItem("crm_user", JSON.stringify(safe));
-      setError("");
-      return true;
+  // Charger les fournisseurs au montage
+  useEffect(() => {
+    if (user) {
+      loadFournisseurs();
     }
-    setError("Email ou mot de passe incorrect.");
-    return false;
+  }, [user]);
+
+  const loadFournisseurs = async () => {
+    try {
+      const response = await companyAPI.getAllCompanies();
+      setFournisseurs(response.data.data || response.data);
+    } catch (err) {
+      console.error("Erreur chargement fournisseurs:", err);
+      setError("Erreur lors du chargement des fournisseurs");
+    }
   };
 
-  // Inscription réservée aux fournisseurs
-  // Crée automatiquement une fiche fournisseur liée au compte
-  const registerFournisseur = ({ nom, raisonSociale, siret, email, password }) => {
-    if (users.find(u => u.email === email)) {
-      setError("Un compte avec cet email existe deja.");
-      return false;
-    }
-    if (users.find(u => u.email === email)) {
-      setError("Un compte avec cet email existe deja.");
-      return false;
-    }
-
-    // Créer la fiche fournisseur
-    const newId = Math.max(...fournisseurs.map(f => f.id)) + 1;
-    const initiales = raisonSociale.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
-    const nouvelleFiche = {
-      id: newId,
-      initiales,
-      raisonSociale,
-      siret,
-      tva: "",
-      adresse: "",
-      contact: email,
-      telephone: "",
-      iban: "",
-      statut: "conforme",
-      depuis: new Date().toLocaleDateString("fr-FR", { month: "short", year: "numeric" }),
-      urssafExpire: "",
-      urssafStatut: "valide",
-      metrics: { factures: 0, facturesAttente: 0, montantTTC: "0 €", docsUploades: 0, docsValides: 0, docsAlertes: 0 },
-      documents: [],
-      factures: [],
-      alertes: [],
-    };
-    setFournisseurs(prev => [...prev, nouvelleFiche]);
-
-    // Créer le compte utilisateur lié à la fiche
-    const newUser = { id: users.length + 1, nom, email, password, role: "Fournisseur", ficheId: newId };
-    setUsers(prev => [...prev, newUser]);
-
-    const { password: _, ...safe } = newUser;
-    setUser(safe);
-    localStorage.setItem("crm_user", JSON.stringify(safe));
+  const login = async (email, password) => {
+    setLoading(true);
     setError("");
-    return true;
+    try {
+      const response = await authAPI.signIn(email, password);
+      const userData = response.data.data || response.data;
+      
+      // Stocker l'utilisateur avec le token
+      const userToStore = {
+        ...userData,
+        token: userData.token || userData.accessToken,
+      };
+      
+      setUser(userToStore);
+      localStorage.setItem("crm_user", JSON.stringify(userToStore));
+      return true;
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Email ou mot de passe incorrect.";
+      setError(errorMsg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const registerFournisseur = async ({ nom, raisonSociale, siret, email, password, confirmPassword }) => {
+    setLoading(true);
+    setError("");
+    try {
+      if (password !== confirmPassword) {
+        setError("Les mots de passe ne correspondent pas.");
+        setLoading(false);
+        return false;
+      }
+      if (password.length < 4) {
+        setError("Le mot de passe doit contenir au moins 4 caractères.");
+        setLoading(false);
+        return false;
+      }
+      if (siret.replace(/\s/g, "").length < 9) {
+        setError("Le SIRET doit contenir au moins 9 chiffres.");
+        setLoading(false);
+        return false;
+      }
+
+      // Créer le compte utilisateur
+      const response = await authAPI.signUp({
+        name: nom,
+        email,
+        password,
+        role: "Fournisseur",
+      });
+
+      const userData = response.data.data || response.data;
+      const userToStore = {
+        ...userData,
+        token: userData.token || userData.accessToken,
+      };
+
+      setUser(userToStore);
+      localStorage.setItem("crm_user", JSON.stringify(userToStore));
+
+      // Créer la fiche fournisseur
+      if (userToStore.token) {
+        await companyAPI.createCompany({
+          name: raisonSociale,
+          siret,
+          email,
+          owner: userToStore._id || userToStore.id,
+        });
+      }
+
+      return true;
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || "Erreur lors de l'inscription";
+      setError(errorMsg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
     setUser(null);
+    setFournisseurs([]);
     localStorage.removeItem("crm_user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, users, fournisseurs, setFournisseurs, login, registerFournisseur, logout, error, setError }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      fournisseurs, 
+      setFournisseurs, 
+      login, 
+      registerFournisseur, 
+      logout, 
+      error, 
+      setError,
+      loading,
+      loadFournisseurs,
+    }}>
       {children}
     </AuthContext.Provider>
   );

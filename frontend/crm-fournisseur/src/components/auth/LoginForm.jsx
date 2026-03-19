@@ -3,20 +3,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.js";
 
 export default function LoginForm() {
-  const { login, error, setError } = useAuth();
+  const { login, error, setError, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    const ok = login(email, password);
+    const ok = await login(email, password);
     if (ok) navigate("/crm");
-    setLoading(false);
   };
 
   return (
@@ -66,9 +62,9 @@ export default function LoginForm() {
               {error}
             </div>
           )}
-          <button type="submit" disabled={loading}
+          <button type="submit" disabled={authLoading}
             className="w-full h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-            {loading ? <svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/><path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : "Se connecter"}
+            {authLoading ? <svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/><path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : "Se connecter"}
           </button>
         </form>
 
