@@ -55,6 +55,7 @@ async def ocr(file: UploadFile = File(...)):
         score = round(filled / len(extracted) * 100) if extracted else 0
         return {
             "type":      doc_type,
+            "filename":  file.filename,
             "method":    "doctr",
             "score":     f"{score}%",
             "extracted": extracted,
