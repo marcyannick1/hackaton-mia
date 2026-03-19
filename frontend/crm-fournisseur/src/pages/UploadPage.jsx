@@ -5,7 +5,7 @@ export default function UploadPage() {
       <div>
         <h1 className="text-xl font-semibold text-slate-800">Upload de documents</h1>
         <p className="text-sm text-slate-500 mt-1">
-          Deposez vos fichiers PDF ou images — ils seront classifies et traites automatiquement par le pipeline OCR.
+          Deposez vos fichiers PDF ou images — ils seront classes et traites automatiquement par le pipeline OCR.
         </p>
       </div>
       <UploadZone />

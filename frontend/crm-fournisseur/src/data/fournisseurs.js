@@ -1,6 +1,9 @@
+// Rôles : "Admin" | "Fournisseur"
+// Un fournisseur est lié à une fiche via son siret (ficheId)
 export const USERS = [
-  { id: 1, email: "admin@docflow.fr", password: "admin123", nom: "Sophie Martin", role: "Administrateur" },
-  { id: 2, email: "operateur@docflow.fr", password: "ope123", nom: "Luca Bernard", role: "Opérateur" },
+  { id: 1, email: "admin@docflow.fr",   password: "admin123", nom: "Sophie Martin",        role: "Admin",       ficheId: null },
+  { id: 2, email: "bt@docflow.fr",      password: "bt123",    nom: "Batiment Tech SAS",    role: "Fournisseur", ficheId: 1 },
+  { id: 3, email: "ls@docflow.fr",      password: "ls123",    nom: "LogiSoft EURL",        role: "Fournisseur", ficheId: 2 },
 ];
 
 export const FOURNISSEURS = [
@@ -29,15 +32,15 @@ export const FOURNISSEURS = [
     ],
     factures: [
       { ref: "FAC-2025-042", date: "15 mars 2025", statut: "attente", montant: "12 400 € TTC" },
-      { ref: "FAC-2025-031", date: "28 fév. 2025", statut: "payee", montant: "8 750 € TTC" },
-      { ref: "DEV-2025-009", date: "10 fév. 2025", statut: "accepte", montant: "5 200 € HT" },
+      { ref: "FAC-2025-031", date: "28 fev. 2025", statut: "payee", montant: "8 750 € TTC" },
+      { ref: "DEV-2025-009", date: "10 fev. 2025", statut: "accepte", montant: "5 200 € HT" },
       { ref: "FAC-2025-018", date: "05 jan. 2025", statut: "payee", montant: "9 180 € TTC" },
     ],
     alertes: [
-      { niveau: "warn", titre: "SIRET à vérifier sur attestation", detail: "Écart détecté entre facture FAC-2025-042 et attestation SIRET uploadée" },
+      { niveau: "warn", titre: "SIRET a verifier sur attestation", detail: "Ecart detecte entre facture FAC-2025-042 et attestation SIRET uploadee" },
       { niveau: "ok", titre: "Attestation URSSAF valide", detail: "Expire le 30/06/2025 — aucune action requise" },
-      { niveau: "ok", titre: "TVA cohérente", detail: "Taux 20 % vérifié sur toutes les factures" },
-      { niveau: "ok", titre: "RIB conforme", detail: "IBAN vérifié et cohérent avec le Kbis" },
+      { niveau: "ok", titre: "TVA coherente", detail: "Taux 20% verifie sur toutes les factures" },
+      { niveau: "ok", titre: "RIB conforme", detail: "IBAN verifie et coherent avec le Kbis" },
     ],
   },
   {
@@ -46,7 +49,7 @@ export const FOURNISSEURS = [
     raisonSociale: "LogiSoft EURL",
     siret: "512 334 891 00017",
     tva: "FR 88 512334891",
-    adresse: "5 allée des Pins, 69003 Lyon",
+    adresse: "5 allee des Pins, 69003 Lyon",
     contact: "admin@logisoft.fr",
     telephone: "+33 4 72 33 10 55",
     iban: "FR76 1027 8060 9100 0200 3456 789",
@@ -62,14 +65,14 @@ export const FOURNISSEURS = [
       { nom: "Facture FAC-2025-011", date: "20/02/2025", statut: "attention" },
     ],
     factures: [
-      { ref: "FAC-2025-011", date: "20 fév. 2025", statut: "attente", montant: "4 800 € TTC" },
+      { ref: "FAC-2025-011", date: "20 fev. 2025", statut: "attente", montant: "4 800 € TTC" },
       { ref: "FAC-2024-089", date: "15 nov. 2024", statut: "payee", montant: "7 300 € TTC" },
       { ref: "DEV-2024-021", date: "01 oct. 2024", statut: "accepte", montant: "10 000 € HT" },
     ],
     alertes: [
-      { niveau: "error", titre: "Attestation URSSAF expirée", detail: "Date d'expiration dépassée depuis le 31/03/2025 — renouvellement requis" },
-      { niveau: "warn", titre: "Incohérence SIRET sur facture", detail: "SIRET sur FAC-2025-011 diffère du Kbis enregistré" },
-      { niveau: "ok", titre: "RIB conforme", detail: "IBAN vérifié et cohérent" },
+      { niveau: "error", titre: "Attestation URSSAF expiree", detail: "Date d expiration depassee depuis le 31/03/2025 — renouvellement requis" },
+      { niveau: "warn", titre: "Incoherence SIRET sur facture", detail: "SIRET sur FAC-2025-011 differe du Kbis enregistre" },
+      { niveau: "ok", titre: "RIB conforme", detail: "IBAN verifie et coherent" },
     ],
   },
   {
@@ -100,9 +103,9 @@ export const FOURNISSEURS = [
       { ref: "DEV-2024-012", date: "10 jul. 2024", statut: "accepte", montant: "2 150 € HT" },
     ],
     alertes: [
-      { niveau: "ok", titre: "Tous les documents sont conformes", detail: "Aucune anomalie détectée" },
+      { niveau: "ok", titre: "Tous les documents sont conformes", detail: "Aucune anomalie detectee" },
       { niveau: "ok", titre: "Attestation URSSAF valide", detail: "Expire le 31/12/2025" },
-      { niveau: "ok", titre: "TVA cohérente", detail: "Taux 20 % vérifié sur toutes les factures" },
+      { niveau: "ok", titre: "TVA coherente", detail: "Taux 20% verifie sur toutes les factures" },
     ],
   },
 ];

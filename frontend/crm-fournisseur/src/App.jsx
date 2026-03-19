@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth.js";
 import LoginPage from "./pages/LoginPage.jsx";
-import RegisterPage from "./pages/RegisterPage.jsx";
+import RegisterFournisseurPage from "./pages/RegisterFournisseurPage.jsx";
 import CrmPage from "./pages/CrmPage.jsx";
 import UploadPage from "./pages/UploadPage.jsx";
 import ResultatsOCRPage from "./pages/ResultatsOCRPage.jsx";
@@ -17,7 +17,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/register" element={<RegisterFournisseurPage />} />
       <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="/crm" replace />} />
         <Route path="crm" element={<CrmPage />} />

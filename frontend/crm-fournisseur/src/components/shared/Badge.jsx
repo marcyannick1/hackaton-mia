@@ -11,19 +11,17 @@ const VARIANTS = {
   payee:    "bg-blue-50 text-blue-700 border border-blue-200",
   accepte:  "bg-blue-50 text-blue-700 border border-blue-200",
 };
-
 const LABELS = {
   valide: "Valide", conforme: "Conforme", ok: "OK",
-  attention: "À vérifier", alerte: "Alerte", warn: "Attention",
-  attente: "En attente", expire: "Expirée", error: "Erreur",
-  payee: "Payée", accepte: "Accepté",
+  attention: "A verifier", alerte: "Alerte", warn: "Attention",
+  attente: "En attente", expire: "Expiree", error: "Erreur",
+  payee: "Payee", accepte: "Accepte",
 };
-
 export default function Badge({ statut }) {
   const classes = VARIANTS[statut] ?? "bg-slate-100 text-slate-600";
   const label = LABELS[statut] ?? statut;
   return (
-    <span className={["inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium", classes].join(" ")}>
+    <span className={"inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium " + classes}>
       {label}
     </span>
   );

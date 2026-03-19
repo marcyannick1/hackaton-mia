@@ -23,7 +23,11 @@ function FileRow({ file, onRemove, onTermine }) {
         <p className="text-xs text-slate-400 mt-0.5">{TYPE_LABELS[file.type] ?? file.type} · {(file.size / 1024).toFixed(0)} Ko</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        {step === 0 && <button onClick={simulate} className="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all">Lancer le traitement</button>}
+        {step === 0 && (
+          <button onClick={simulate} className="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all">
+            Lancer le traitement
+          </button>
+        )}
         {step > 0 && step < STATUTS.length - 1 && (
           <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">
             <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
@@ -56,15 +60,16 @@ export default function UploadZone() {
   };
   const removeFile = name => setFiles(prev => prev.filter(f => f.name !== name));
   const onDrop = e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files); };
-  const handleTermine = file => { navigate("/resultats-ocr", { state: { fichier: { nom: file.name, type: file.type, taille: file.size } } }); };
+  const handleTermine = file => navigate("/resultats-ocr", { state: { fichier: { nom: file.name, type: file.type, taille: file.size } } });
 
   return (
     <div className="space-y-4">
-      <div onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop} onClick={() => inputRef.current.click()}
-        className={`relative border-2 border-dashed rounded-xl px-8 py-12 text-center cursor-pointer transition-all ${dragging ? "border-blue-400 bg-blue-50" : "border-slate-300 bg-white hover:border-blue-300 hover:bg-slate-50"}`}>
+      <div onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}
+        onClick={() => inputRef.current.click()}
+        className={"relative border-2 border-dashed rounded-xl px-8 py-12 text-center cursor-pointer transition-all " + (dragging ? "border-blue-400 bg-blue-50" : "border-slate-300 bg-white hover:border-blue-300 hover:bg-slate-50")}>
         <input ref={inputRef} type="file" multiple accept=".pdf,image/*" className="hidden" onChange={e => addFiles(e.target.files)} />
         <div className="flex flex-col items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${dragging ? "bg-blue-100" : "bg-slate-100"}`}>
+          <div className={"w-12 h-12 rounded-xl flex items-center justify-center transition-colors " + (dragging ? "bg-blue-100" : "bg-slate-100")}>
             <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" className={dragging ? "text-blue-600" : "text-slate-500"}>
               <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
             </svg>

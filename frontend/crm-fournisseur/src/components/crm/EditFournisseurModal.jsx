@@ -4,13 +4,21 @@ import { useFournisseur } from "../../hooks/useFournisseur.js";
 export default function EditFournisseurModal({ fournisseur, onClose }) {
   const { updateFournisseur } = useFournisseur();
   const [form, setForm] = useState({
-    raisonSociale: fournisseur.raisonSociale, siret: fournisseur.siret, tva: fournisseur.tva,
-    adresse: fournisseur.adresse, contact: fournisseur.contact, telephone: fournisseur.telephone, iban: fournisseur.iban,
+    raisonSociale: fournisseur.raisonSociale,
+    siret: fournisseur.siret,
+    tva: fournisseur.tva,
+    adresse: fournisseur.adresse,
+    contact: fournisseur.contact,
+    telephone: fournisseur.telephone,
+    iban: fournisseur.iban,
   });
   const [saved, setSaved] = useState(false);
   const handleChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   const handleSubmit = e => {
-    e.preventDefault(); updateFournisseur(fournisseur.id, form); setSaved(true); setTimeout(onClose, 1000);
+    e.preventDefault();
+    updateFournisseur(fournisseur.id, form);
+    setSaved(true);
+    setTimeout(onClose, 1000);
   };
   const CHAMPS = [
     { name: "raisonSociale", label: "Raison sociale", type: "text" },
@@ -22,11 +30,13 @@ export default function EditFournisseurModal({ fournisseur, onClose }) {
     { name: "iban", label: "IBAN", type: "text" },
   ];
   return (
-    <div style={{ minHeight: "400px", background: "rgba(0,0,0,0.45)" }} className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div style={{ minHeight: "400px", background: "rgba(0,0,0,0.45)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="text-base font-semibold text-slate-800">Modifier le fournisseur</h3>
+            <h3 className="text-base font-semibold text-slate-800">Modifier la fiche</h3>
             <p className="text-xs text-slate-400 mt-0.5">{fournisseur.raisonSociale}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">
@@ -45,7 +55,8 @@ export default function EditFournisseurModal({ fournisseur, onClose }) {
             {CHAMPS.map(champ => (
               <div key={champ.name}>
                 <label className="block text-xs font-medium text-slate-600 mb-1.5">{champ.label}</label>
-                <input type={champ.type} name={champ.name} value={form[champ.name]} onChange={handleChange} required className="w-full h-10 px-3.5 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                <input type={champ.type} name={champ.name} value={form[champ.name]} onChange={handleChange}
+                  className="w-full h-10 px-3.5 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
               </div>
             ))}
             <div className="flex gap-3 pt-2">
