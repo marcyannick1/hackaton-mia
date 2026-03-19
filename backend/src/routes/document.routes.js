@@ -16,6 +16,9 @@ router.get(
 router.get("/me", authenticate, documentController.getMyDocuments);
 
 router.get("/:id", authenticate, documentController.getDocumentById);
+router.get("/:id/curated", authenticate, documentController.getCuratedData);
+router.put("/:id/validate", authenticate, authorizeRoles("admin"), documentController.validateDocument);
+
 router.delete("/:id", authenticate, documentController.deleteDocument);
 
 router.post(

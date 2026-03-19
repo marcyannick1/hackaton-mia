@@ -1,4 +1,4 @@
-# API Documentation - Hackathon MIA (Med-Y API)
+# API Documentation - Hackathon MIA
 
 Ce document résumes les points d'accès (endpoints) disponibles sur le backend Node.js, ainsi que quelques commandes utiles pour l'administration.
 
@@ -67,40 +67,31 @@ Gestion des utilisateurs de la plateforme.
 Cœur de l'application : Upload, OCR automatisé, et Réconciliation.
 
 - **`POST /documents/upload`**
-  - **Description** : Uploader un fichier PDF ou Image. Déclenche l'OCR FastAPI en arrière-plan et créé la liaison intelligente avec l'entreprise.
+  - **Description** : Uploader un fichier PDF ou Image. Le fichier est stocké dans **GridFS** (MongoDB). Déclenche le pipeline asynchrone **Apache Airflow** en arrière-plan.
   - **Body (`multipart/form-data`)** :
     - `file` (Requis) : Le fichier physique.
-    - `documentType` (Optionnel) : Le type présumé (sera écrasé par l'OCR si détecté de manière plus fiable).
-    - `company` (Optionnel) : L'ID d'une entreprise existante (si ignoré, l'API cherchera par elle-même, ou créera un nouveau fournisseur).
-  - **Réponse** : L'entité document sauvegardée avec son statut de traitement OCR.
+  - **Réponse** : Le document créé avec le statut initial `uploaded` et son `gridfsId`.
 
 - **`GET /documents`**
   - **Permissions** : `admin` uniquement.
-  - **Description** : Liste l'intégralité des documents uploadés sur la plateforme.
+  - **Description** : Liste l'intégralité des métadonnées des documents uploadés.
 
 - **`GET /documents/me`**
   - **Description** : Liste tous les documents uploadés par l'utilisateur courant.
 
 - **`GET /documents/:id`**
-  - **Permissions** : Propriétaire du document (`uploadedBy`) ou `admin`.
-  - **Description** : Récupérer le détail complet (avec l'OCR `extractedData`) d'un document spécifique via son ID.
+  - **Permissions** : Propriétaire (`uploadedBy`) ou `admin`.
+  - **Description** : Récupérer les métadonnées de base d'un document (nom, taille, statut `processing`/`done`).
+
+- **`GET /documents/:id/curated`**
+  - **Description** : **[NOUVEAU]** Récupère les données finales extraites et validées par **Airflow** (Données OCR, Montants, Statuts de fraude) pour ce document spécifique.
 
 - **`DELETE /documents/:id`**
-  - **Permissions** : Propriétaire du document (`uploadedBy`) ou `admin`.
-  - **Description** : Suppression propre et complète d'un document (fichier physique retiré, extractions écrasées, `$pull` du document hors du fournisseur, puis suppression de la ligne Mongoose).
+  - **Permissions** : Propriétaire (`uploadedBy`) ou `admin`.
+  - **Description** : Suppression du document bruts et des métadonnées associées.
 
 ---
 
 ## 🏢 Companies (`/companies`)
 
-Gestion des fournisseurs et entreprises détectés ou saisis.
-
-- **`POST /companies`**
-  - **Description** : Créer manuellement une entreprise. Si un SIRET identique est trouvé, retourne l'entreprise existante sans doublon.
-  - **Body (JSON)** : `name` (Requis), `siret` (Requis - 14 chiffres), `siren`, `tva`, `email`, `address`, etc.
-
-- **`GET /companies`**
-  - **Description** : Récupérer toutes les entreprises de la BDD. Inclut le détail imbriqué des documents.
-
-- **`GET /companies/:id`**
-  - **Description** : Récupérer une entreprise spécifique via son ID.
+> **Obsolète** : La collection `Company` a été retirée au profit d'une structure "Data Lake" dynamique. Les informations entreprises sont désormais déduites en temps réel par le Front-end en agrégeant les données des routes `/documents/:id/curated` filtrées par SIRET.
