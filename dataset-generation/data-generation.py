@@ -11,7 +11,7 @@ HEADERS = {
 BASE_URL_SIRET = "https://api.insee.fr/api-sirene/3.11/siret"
 
 
-# 🔹 1. Appel API
+# Appel API
 def fetch_etablissement(enseigne):
     query = f'denominationUniteLegale:"{enseigne}" AND -periode(etatAdministratifEtablissement:F) AND -codePaysEtrangerEtablissement:*'
 
@@ -31,7 +31,7 @@ def fetch_etablissement(enseigne):
         return None
 
 
-# 🔹 2. Extraction des données
+# Extraction des données
 def extract_data(enseigne, etab,naf_bdd,forme_juridique_bdd):
     if not etab:
         return None
@@ -73,7 +73,7 @@ def extract_data(enseigne, etab,naf_bdd,forme_juridique_bdd):
     ]
 
 
-# 🔹 3. Export CSV
+# Export CSV
 def export_to_csv(filename, data_rows):
     with open(filename, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
@@ -120,7 +120,7 @@ def get_forme_juridique_description():
 
     return df
 
-# 🔹 4. Pipeline principal
+# Pipeline principal
 def main():
     naf_bdd = get_naf_description()
     forme_juridique_bdd = get_forme_juridique_description()
