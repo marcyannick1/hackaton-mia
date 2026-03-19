@@ -75,6 +75,7 @@ services:
       - "8080:8080"
     command: >
       bash -c "
+      sleep 6 &&
       airflow db migrate &&
       airflow db init &&
       airflow users create \
