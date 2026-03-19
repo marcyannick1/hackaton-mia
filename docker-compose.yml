@@ -92,6 +92,18 @@ services:
     ports:
       - "8000:8000"
 
+  fraud_api:
+    build: ./fraud_detection
+    container_name: hackathon_fraud_api
+    restart: on-failure
+    ports:
+      - "8001:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB_NAME=hackathon
+    depends_on:
+      - mongo
+
 volumes:
   mongo_data:
   postgres_data:
