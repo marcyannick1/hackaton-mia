@@ -2,16 +2,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN python -c "from doctr.models import ocr_predictor; ocr_predictor(pretrained=True)"
 
-RUN apt-get update && apt-get install -y \
-    poppler-utils \
-    tesseract-ocr \
-    tesseract-ocr-fra \
-    && rm -rf /var/lib/apt/lists/*
+COPY . .
 
 EXPOSE 8000
 
