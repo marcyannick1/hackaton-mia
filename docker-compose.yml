@@ -2,16 +2,35 @@ services:
   # -------------------------
   # FRONTEND REACT
   # -------------------------
-  frontend:
-    build: ./frontend
-    container_name: hackathon_frontend
+  # -------------------------
+  # FRONTEND 1
+  # -------------------------
+  frontend1:
+    build: ./frontend/crm-fournisseur
+    container_name: hackathon_frontend_1
     ports:
       - "5173:5173"
     volumes:
-      - ./frontend:/app
+      - ./frontend/crm-fournisseur:/app
       - /app/node_modules
     environment:
-      - REACT_APP_API_URL=http://localhost:3000
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - backend
+
+  # -------------------------
+  # FRONTEND 2
+  # -------------------------
+  frontend2:
+    build: ./frontend/outil-conformite
+    container_name: hackathon_frontend_2
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./frontend/outil-conformite:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3000
     depends_on:
       - backend
 
