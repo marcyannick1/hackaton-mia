@@ -1,5 +1,6 @@
 import re
-from typing import Optional
+from typing import Optional, Tuple
+
 
 def find(pattern: str, text: str) -> Optional[str]:
     match = re.search(pattern, text, re.IGNORECASE)
@@ -7,6 +8,17 @@ def find(pattern: str, text: str) -> Optional[str]:
         value = match.group(1).strip()
         return value if value else None
     return None
+
+
+def extract_totaux(text: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    bloc = re.search(r"Total\s+HT(.*)", text, re.DOTALL | re.IGNORECASE)
+    if not bloc:
+        return None, None, None
+    montants = re.findall(r'(?:(?<=\d{4})|(?<!\d))(\d{1,7}[.,]\d{2})(?=\s|€|\n|$)', bloc.group(1))
+    return (montants[0] if len(montants) > 0 else None,
+            montants[1] if len(montants) > 1 else None,
+            montants[2] if len(montants) > 2 else None)
+
 
 def determine_document_type(text: str) -> str:
     t = text.lower()
@@ -24,88 +36,65 @@ def determine_document_type(text: str) -> str:
         return "devis"
     return "inconnu"
 
+
 def extract_rib_data(text: str) -> dict:
     return {
-        # IBAN : "IBAN   FR19649791481749974413362485"
-        "iban":         find(r"IBAN\s+([A-Z]{2}[\d\s]{15,32})", text),
-        # BIC  : "BIC   AGRIFRPP"
-        "bic":          find(r"BIC\s+([A-Z0-9]{8,11})", text),
-        # Titulaire : "Titulaire   AUCHAN CARBURANT"
-        "titulaire":    find(r"Titulaire\s+(.+?)(?:\n|$)", text),
-        # Banque : "Banque   Crédit Agricole"
-        "banque":       find(r"Banque\s+(.+?)(?:\n|$)", text),
+        "iban":      find(r"IBAN\s+([A-Z]{2}[\d\s]{15,32})", text),
+        "bic":       find(r"BIC\s+([A-Z0-9]{8,11})", text),
+        "titulaire": find(r"Titulaire\s+(.+?)(?:\n|$)", text),
+        "banque":    find(r"Banque\s+(.+?)(?:\n|$)", text),
     }
+
 
 def extract_siret_attestation_data(text: str) -> dict:
     return {
-        # "N° SIRET   37954800100344"  ou  "SIRET   37954800100344"
         "siret":           find(r"N°?\s*SIRET\s+(\d{14})", text) or find(r"\b(\d{14})\b", text),
-        # "Raison sociale   AUCHAN CARBURANT"
         "raison_sociale":  find(r"Raison sociale\s+(.+?)(?:\n|$)", text),
-        # "Forme juridique   SAS..."
         "forme_juridique": find(r"Forme juridique\s+(.+?)(?:\n|$)", text),
-        # "Date de début   14/11/2025"
         "date_debut":      find(r"Date de d[eé]but\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
-        # "Date de fin   14/11/2026"
         "date_fin":        find(r"Date de fin\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
     }
 
+
 def extract_urssaf_data(text: str) -> dict:
     return {
-        # "SIRET   37954800100344"
-        "siret":            find(r"SIRET\s+(\d{14})", text) or find(r"\b(\d{14})\b", text),
-        # "Raison sociale   AUCHAN CARBURANT"
-        "raison_sociale":   find(r"Raison sociale\s+(.+?)(?:\n|$)", text),
-        # "Reference attestation   70890936987441"
-        "ref_attestation":  find(r"[Rr]ef(?:erence)?\s+attestation\s+(\d+)", text),
-        # "Date de début   05/08/2024"
-        "date_debut":       find(r"Date de d[eé]but\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
-        # "Date de fin   03/02/2025"
-        "date_fin":         find(r"Date de fin\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
+        "siret":           find(r"SIRET\s+(\d{14})", text) or find(r"\b(\d{14})\b", text),
+        "raison_sociale":  find(r"Raison sociale\s+(.+?)(?:\n|$)", text),
+        "ref_attestation": find(r"[Rr]ef(?:erence)?\s+attestation\s+(\d+)", text),
+        "date_debut":      find(r"Date de d[eé]but\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
+        "date_fin":        find(r"Date de fin\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
     }
+
 
 def extract_kbis_data(text: str) -> dict:
     return {
-        # "SIRET   37954800100344"
-        "siret":            find(r"SIRET\s+(\d{14})", text) or find(r"\b(\d{14})\b", text),
-        # "Raison sociale   AUCHAN CARBURANT"
-        "raison_sociale":   find(r"Raison sociale\s+(.+?)(?:\n|$)", text),
-        # "Forme juridique   SAS, société par actions simplifiée"
-        "forme_juridique":  find(r"Forme juridique\s+(.+?)(?:\n|$)", text),
-        # "Dirigeant principal   Isabelle Raynaud"
-        "dirigeant":        find(r"Dirigeant principal\s+(.+?)(?:\n|$)", text),
-        # "Date d'immatriculation   16/05/2015"
+        "siret":                find(r"SIRET\s+(\d{14})", text) or find(r"\b(\d{14})\b", text),
+        "raison_sociale":       find(r"Raison sociale\s+(.+?)(?:\n|$)", text),
+        "forme_juridique":      find(r"Forme juridique\s+(.+?)(?:\n|$)", text),
+        "dirigeant":            find(r"Dirigeant principal\s+(.+?)(?:\n|$)", text),
         "date_immatriculation": find(r"Date d.immatriculation\s+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
     }
 
+
 def extract_invoice_data(text: str) -> dict:
+    ht, tva, ttc = extract_totaux(text)
     return {
-        # "SIRET : 67200998502051"  ou  en-tête du document
-        "siret":          find(r"SIRET\s*[:\-]?\s*(\d{14})", text) or find(r"\b(\d{14})\b", text),
-        # "Total HT   11275.00 €"
-        "montant_ht":     find(r"Total\s+HT\s+([\d\s]+[.,]\d{2})", text),
-        # "Total TTC   13530.00 €"  ou  "Net à payer   13530.00 €"
-        "montant_ttc":    find(r"(?:Total\s+TTC|Net\s+[àa]\s+payer)\s+([\d\s]+[.,]\d{2})", text),
-        # "Total TVA   2255.00 €"
-        "tva":            find(r"Total\s+TVA\s+([\d\s]+[.,]\d{2})", text),
-        # "Date   19/03/2026"  (ligne du tableau en-tête de facture)
-        "date_emission":  find(r"(?:^|\n)\s*Date\s+([\d]{2}[/\-][\d]{2}[/\-][\d]{4})", text),
-        # "Date d'échéance : 19/05/2026"
-        "date_echeance":  find(r"Date d.[eé]ch[eé]ance\s*[:\-]?\s*(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
+        "siret":         find(r"SIRET\s*[:\-\s]+\s*(\d{14})", text) or find(r"\b(\d{14})\b", text),
+        "montant_ht":    ht,
+        "montant_ttc":   find(r"Net\s+[àa]\s+payer\s*\n?\s*(\d{1,7}[.,]\d{2})", text) or ttc,
+        "tva":           tva,
+        "date_emission": find(r"(?:FA|DV)-\d+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
+        "date_echeance": find(r"Date d.[eé]ch[eé]ance\s*[:\-]?\s*(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
     }
 
+
 def extract_devis_data(text: str) -> dict:
+    ht, tva, ttc = extract_totaux(text)
     return {
-        # "SIRET : 324471052..."
-        "siret":         find(r"SIRET\s*[:\-]?\s*(\d{14})", text) or find(r"\b(\d{14})\b", text),
-        # "Total HT   1250.00 €"
-        "montant_ht":    find(r"Total\s+HT\s+([\d\s]+[.,]\d{2})", text),
-        # "Total TTC   1500.00 €"
-        "montant_ttc":   find(r"Total\s+TTC\s+([\d\s]+[.,]\d{2})", text),
-        # "Total TVA   250.00 €"
-        "tva":           find(r"Total\s+TVA\s+([\d\s]+[.,]\d{2})", text),
-        # "Date   19/03/2026"
-        "date_emission": find(r"(?:^|\n)\s*Date\s+([\d]{2}[/\-][\d]{2}[/\-][\d]{4})", text),
-        # "Devis valable jusqu'au : 05/06/2025"
+        "siret":         find(r"SIRET\s*[:\-\s]+\s*(\d{14})", text) or find(r"\b(\d{14})\b", text),
+        "montant_ht":    ht,
+        "montant_ttc":   ttc,
+        "tva":           tva,
+        "date_emission": find(r"(?:FA|DV)-\d+(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
         "validite":      find(r"valable jusqu.au\s*[:\-]?\s*(\d{2}[/\-]\d{2}[/\-]\d{4})", text),
     }
