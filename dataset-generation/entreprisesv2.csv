@@ -1,8 +1,8 @@
-enseigne,siren,siret,nom,adresse,ville,code_postal,code_naf,intitule_naf,categorie_juridique,intitule_categorie_juridique
-Carrefour France,672050085,67205008502051,CARREFOUR FRANCE,ROUTE DE PARIS,MONDEVILLE,14120,70.10Z,Activités des sièges sociaux,5710,"SAS, société par actions simplifiée"
-Lidl,343262622,34326262202376,LIDL,2 RUE CHAPTAL,SAINT-BRIEUC,22000,47.11D,Supermarchés,5202,Société en nom collectif 
-Leclerc,802830943,80283094300014,LECLERC,26 RUE DU MARECHAL LECLERC,FLERS-EN-ESCREBIEUX,59128,68.20B,Location de terrains et d'autres biens immobiliers,6540,Société civile immobilière 
-Auchan,379548001,37954800100070,AUCHAN CARBURANT,CENTRE COMMERCIAL LE GRAND CAP,LE HAVRE,76600,47.30Z,Commerce de détail de carburants en magasin spécialisé,5710,"SAS, société par actions simplifiée"
-Ikea,351745724,35174572400572,MEUBLES IKEA FRANCE,147 RUE CARDINET,PARIS,75017,47.59A,Commerce de détail de meubles,5710,"SAS, société par actions simplifiée"
-Fnac,334473352,33447335200253,RELAIS FNAC,17 AVENUE VICTOR HUGO,VALENCE,26000,47.41Z,"Commerce de détail d'ordinateurs, d'unités périphériques et de logiciels en magasin spécialisé",5710,"SAS, société par actions simplifiée"
-Boulanger,347384570,34738457001357,BOULANGER,RUE MARIE CURIE,COLOMIERS,31770,47.54Z,Commerce de détail d'appareils électroménagers en magasin spécialisé,5599,SA à conseil d'administration (s.a.i.)
+enseigne,siren,siret,date_creation,nom,adresse,ville,code_postal,code_naf,intitule_naf,categorie_juridique,intitule_categorie_juridique,num_tva
+Carrefour France,672050085,67205008502051,2004-03-22,CARREFOUR FRANCE,ROUTE DE PARIS,MONDEVILLE,14120,70.10Z,Activités des sièges sociaux,5710,"SAS, société par actions simplifiée",FR29672050085
+Lidl,343262622,34326262202376,1994-01-05,LIDL,2 RUE CHAPTAL,SAINT-BRIEUC,22000,47.11D,Supermarchés,5202,Société en nom collectif ,FR85343262622
+Leclerc,491086914,49108691400018,2006-07-12,LECLERC,18 AVENUE SAINTE BARBE,SOISY-SOUS-MONTMORENCY,95230,68.20B,Location de terrains et d'autres biens immobiliers,6540,Société civile immobilière ,FR19491086914
+Auchan,379548001,37954800100344,2008-07-01,AUCHAN CARBURANT,AV GUTENBERG,MAUREPAS,78310,47.30Z,Commerce de détail de carburants en magasin spécialisé,5710,"SAS, société par actions simplifiée",FR9379548001
+Ikea,351745724,35174572400168,2002-02-20,MEUBLES IKEA FRANCE,CENTRE COMMERCIAL ATLANTIS,SAINT-HERBLAIN,44800,47.59A,Commerce de détail de meubles,5710,"SAS, société par actions simplifiée",FR83351745724
+Fnac,334473352,33447335200253,1996-01-01,RELAIS FNAC,17 AVENUE VICTOR HUGO,VALENCE,26000,47.41Z,"Commerce de détail d'ordinateurs, d'unités périphériques et de logiciels en magasin spécialisé",5710,"SAS, société par actions simplifiée",FR76334473352
+Boulanger,347384570,34738457000110,1992-01-01,BOULANGER,CHAMP DU PONT,ST PRIEST,69800,47.54Z,Commerce de détail d'appareils électroménagers en magasin spécialisé,5599,SA à conseil d'administration (s.a.i.),FR78347384570

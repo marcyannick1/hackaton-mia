@@ -82,7 +82,7 @@ backend/
 {
   "username": "ahmed_op",
   "email": "ahmed@company.com",
-  "role": "operator",      // admin | operator | viewer
+  "role": "fournisseur",      // admin | fournisseur
   "department": "Accounting"
 }
 ```

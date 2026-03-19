@@ -13,3 +13,9 @@ exports.SignIn = async (req, res) => {
   const result = await authService.SignIn({ email, password });
   return res.status(result.statusCode).json(result);
 };
+
+exports.GetMe = async (req, res) => {
+  const userId = req.user.userId;
+  const result = await authService.GetMe(userId);
+  return res.status(result.statusCode).json(result);
+};

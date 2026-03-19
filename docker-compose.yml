@@ -1,5 +1,4 @@
 services:
-
   # -------------------------
   # FRONTEND REACT
   # -------------------------
@@ -61,7 +60,7 @@ services:
   # AIRFLOW
   # -------------------------
   airflow:
-    image: apache/airflow:2.7.0
+    build: ./airflow/
     container_name: hackathon_airflow
     depends_on:
       - postgres
@@ -69,6 +68,7 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     volumes:
       - ./airflow/dags:/opt/airflow/dags
     ports:
@@ -83,6 +83,7 @@ services:
       --lastname admin \
       --role Admin \
       --email admin@example.com &&
+      airflow scheduler &
       airflow webserver
       "
 
@@ -91,6 +92,18 @@ services:
     container_name: hackathon_ocr
     ports:
       - "8000:8000"
+
+  fraud_api:
+    build: ./fraud_detection
+    container_name: hackathon_fraud_api
+    restart: on-failure
+    ports:
+      - "8001:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB_NAME=hackathon
+    depends_on:
+      - mongo
 
 volumes:
   mongo_data:

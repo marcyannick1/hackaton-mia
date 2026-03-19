@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>RIB</title>
+</head>
+<body>
+<div style="margin-top: 30px; font-size: 11px; font-family: Arial, sans-serif;">
+
+  <table style="width: 100%; border-collapse: separate; border-spacing: 20px 0;">
+    <tr>
+
+      <td style="width: 50%; vertical-align: top;">
+        <div style="
+          border: 1px solid #dcdcdc;
+          border-radius: 10px;
+          padding: 14px;
+          background-color: #fafafa;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        ">
+
+          <div style="
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+          ">
+          </div>
+
+          <table style="width: 100%; font-size: 11px;">
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>Titulaire</strong></td>
+              <td style="padding: 4px 0;">{{ entreprise_nom }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>Banque</strong></td>
+              <td style="padding: 4px 0;">{{ bank }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>IBAN</strong></td>
+              <td style="padding: 4px 0; font-family: monospace;">{{ iban }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>BIC</strong></td>
+              <td style="padding: 4px 0; font-family: monospace;">{{ bic }}</td>
+            </tr>
+          </table>
+
+        </div>
+      </td>
+
+      <td style="width: 50%; vertical-align: top;">
+        <div style="
+          border: 1px solid #dcdcdc;
+          border-radius: 10px;
+          padding: 14px;
+          background-color: #ffffff;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        ">
+
+          <div style="
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+          ">
+          </div>
+
+          <table style="width: 100%; font-size: 11px;">
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>SIREN</strong></td>
+              <td style="padding: 4px 0;">{{ siren }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>SIRET</strong></td>
+              <td style="padding: 4px 0;">{{ siret }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>Num TVA</strong></td>
+              <td style="padding: 4px 0;">{{ num_tva }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>Email</strong></td>
+              <td style="padding: 4px 0;">{{ email_entreprise }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>Téléphone</strong></td>
+              <td style="padding: 4px 0;">{{ telephone_entreprise }}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color:#555;"><strong>Code NAF</strong></td>
+              <td style="padding: 4px 0;">{{ code_naf }}</td>
+            </tr>
+          </table>
+
+        </div>
+      </td>
+
+    </tr>
+  </table>
+
+  <div style="
+    margin-top: 20px;
+    font-size: 10px;
+    color: #777;
+    line-height: 1.5;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+  ">
+    En cas de retard de paiement, des pénalités seront exigibles conformément à la législation en vigueur.
+    Une indemnité forfaitaire de 40 € pour frais de recouvrement pourra être appliquée.
+  </div>
+
+</div>
+</body>
+</html>
