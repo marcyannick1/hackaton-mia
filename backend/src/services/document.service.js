@@ -43,7 +43,8 @@ exports.getUserDocuments = async (userId) => {
 
 exports.createDocument = async (fileData, userId) => {
     try {
-        const {filename, originalname, size, path, mimetype} = fileData;
+        // "path" remplacé par "id" (ObjectId GridFS)
+        const { filename, originalname, size, id, mimetype } = fileData;
 
         let fileType = "other";
         if (mimetype === "application/pdf") {
@@ -56,7 +57,7 @@ exports.createDocument = async (fileData, userId) => {
             filename,
             originalName: originalname,
             fileSize: size,
-            filePath: path,
+            gridfsId: id,          // ← remplace filePath
             fileType,
             mimeType: mimetype,
             uploadedBy: userId,

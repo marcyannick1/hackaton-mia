@@ -1,5 +1,6 @@
 const documentService = require("../services/document.service");
 const axios = require("axios")
+const {saveToGridFS} = require("../middlewares/upload.middleware");
 
 exports.getAllDocuments = async (req, res) => {
     try {
@@ -61,10 +62,12 @@ exports.uploadDocument = async (req, res) => {
             });
         }
 
+        const gridfsFile = await saveToGridFS(req.file);
+
         const userId = req.user.userId;
 
         const result = await documentService.createDocument(
-            req.file,
+            gridfsFile,
             userId
         );
 
