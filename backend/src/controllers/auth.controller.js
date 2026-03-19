@@ -1,9 +1,9 @@
 const authService = require("../services/auth.service");
 
 exports.SignUp = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { name, email, password, company } = req.body;
 
-  const result = await authService.SignUp({ username, email, password });
+  const result = await authService.SignUp({ name, email, password, company });
   return res.status(result.statusCode).json(result);
 };
 

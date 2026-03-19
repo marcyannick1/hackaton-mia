@@ -79,3 +79,30 @@ exports.getCompanyById = async (companyId) => {
     };
   }
 };
+
+exports.getCompanyBySiret = async (siret) => {
+  try {
+    const company = await Company.findOne({siret}).populate("documents");
+
+    if (!company) {
+      return {
+        error: true,
+        message: "Entreprise introuvable",
+        statusCode: 404,
+      };
+    }
+
+    return {
+      error: false,
+      message: "Entreprise récupérée avec succès",
+      data: company,
+      statusCode: 200,
+    };
+  } catch (error) {
+    return {
+      error: true,
+      message: "Erreur lors de la récupération de l'entreprise",
+      statusCode: 500,
+    };
+  }
+};

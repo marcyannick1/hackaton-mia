@@ -7,8 +7,8 @@ const { createCompanySchema } = require("../dtos/company.dtos");
 
 router.post(
   "/",
-  authenticate,
-  validateWithJoi(createCompanySchema),
+  // authenticate,
+  // validateWithJoi(createCompanySchema),
   companyController.createCompany,
 );
 
