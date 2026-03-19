@@ -98,5 +98,3 @@ Cœur de l'application : Upload, OCR automatisé, et Réconciliation.
 ---
 
 ## 🏢 Companies (`/companies`)
-
-> **Obsolète** : La collection `Company` a été retirée au profit d'une structure "Data Lake" dynamique. Les informations entreprises sont désormais déduites en temps réel par le Front-end en agrégeant les données des routes `/documents/:id/curated` filtrées par SIRET.
