@@ -4,8 +4,6 @@ const documentController = require("../controllers/document.controller");
 const authenticate = require("../middlewares/authenticate.middleware");
 const authorizeRoles = require("../middlewares/authorize.middleware");
 const { upload } = require("../middlewares/upload.middleware");
-const validateWithJoi = require("../middlewares/validation.middleware");
-const { uploadMetadataSchema } = require("../dtos/document.dtos");
 
 router.get(
   "/",
@@ -30,7 +28,6 @@ router.post(
   "/upload",
   authenticate,
   upload.single("file"),
-  validateWithJoi(uploadMetadataSchema),
   documentController.uploadDocument,
 );
 
