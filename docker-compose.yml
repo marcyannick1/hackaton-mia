@@ -61,7 +61,7 @@ services:
   # AIRFLOW
   # -------------------------
   airflow:
-    image: apache/airflow:2.7.0
+    build: ./airflow/
     container_name: hackathon_airflow
     depends_on:
       - postgres
@@ -69,6 +69,7 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     volumes:
       - ./airflow/dags:/opt/airflow/dags
     ports:
@@ -83,6 +84,7 @@ services:
       --lastname admin \
       --role Admin \
       --email admin@example.com &&
+      airflow scheduler &
       airflow webserver
       "
 

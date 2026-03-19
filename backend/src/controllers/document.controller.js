@@ -1,4 +1,5 @@
 const documentService = require("../services/document.service");
+const axios = require("axios")
 
 exports.getAllDocuments = async (req, res) => {
     try {
@@ -64,37 +65,40 @@ exports.uploadDocument = async (req, res) => {
 
         const result = await documentService.createDocument(
             req.file,
-            req.body,
-            userId,
+            userId
         );
-
-
-        // Envoi a apache airflow
-
-        // const documentId = result.insertedId.toString();
-        //
-        // try {
-        //     await axios.post(
-        //         "http://airflow-webserver:8080/api/v1/dags/document_pipeline/dagRuns",
-        //         {
-        //             conf: {document_id: documentId}
-        //         },
-        //         {
-        //             auth: {
-        //                 username: "admin",
-        //                 password: "admin"
-        //             }
-        //         }
-        //     );
-        // } catch (err) {
-        //     console.error("Airflow trigger error:", err.message);
-        // }
 
         if (result.error) {
             return res.status(result.statusCode).json({
                 error: true,
                 message: result.message,
             });
+        }
+
+
+        // Envoi a apache airflow
+        const documentId = result.data._id.toString();
+
+        try {
+            await axios.post(
+                "http://airflow:8080/api/v1/dags/document_pipeline/dagRuns",
+                {
+                    conf: {document_id: documentId}
+                },
+                {
+                    auth: {
+                        username: "admin",
+                        password: "admin"
+                    }
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+        } catch (err) {
+            console.error("Airflow trigger error:", err.message);
         }
 
         return res.status(result.statusCode).json(result);
@@ -133,23 +137,23 @@ exports.deleteDocument = async (req, res) => {
 };
 
 exports.getDocumentById = async (req, res) => {
-  try {
-    const documentId = req.params.id;
-    const userId = req.user.userId;
-    const userRole = req.user.role;
+    try {
+        const documentId = req.params.id;
+        const userId = req.user.userId;
+        const userRole = req.user.role;
 
-    const result = await documentService.getDocumentById(
-      documentId,
-      userId,
-      userRole,
-    );
+        const result = await documentService.getDocumentById(
+            documentId,
+            userId,
+            userRole,
+        );
 
-    return res.status(result.statusCode).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur serveur lors de la récupération du document",
-      details: error.message,
-    });
-  }
+        return res.status(result.statusCode).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: "Erreur serveur lors de la récupération du document",
+            details: error.message,
+        });
+    }
 };
