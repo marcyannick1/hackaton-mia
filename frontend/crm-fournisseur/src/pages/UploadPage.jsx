@@ -1,4 +1,6 @@
 import UploadZone from "../components/upload/UploadZone.jsx";
+import { useDocuments } from "../hooks/useDocuments.js";
+
 export default function UploadPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -8,7 +10,7 @@ export default function UploadPage() {
           Deposez vos fichiers PDF ou images — ils seront classes et traites automatiquement par le pipeline OCR.
         </p>
       </div>
-      <UploadZone />
+      <UploadZone useDocumentsHook={useDocuments} />
     </div>
   );
 }

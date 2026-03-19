@@ -3,9 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.js";
 
 export default function RegisterFournisseurForm() {
-  const { registerFournisseur, error, setError } = useAuth();
+  const { registerFournisseur, error, setError, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState("");
   const [form, setForm] = useState({
     nom: "",
@@ -26,11 +25,8 @@ export default function RegisterFournisseurForm() {
     if (form.password !== form.confirmPassword) { setLocalError("Les mots de passe ne correspondent pas."); return; }
     if (form.password.length < 4) { setLocalError("Le mot de passe doit contenir au moins 4 caracteres."); return; }
     if (form.siret.replace(/\s/g, "").length < 9) { setLocalError("Le SIRET doit contenir au moins 9 chiffres."); return; }
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 700));
-    const ok = registerFournisseur(form);
+    const ok = await registerFournisseur(form);
     if (ok) navigate("/crm");
-    setLoading(false);
   };
 
   const displayError = localError || error;
@@ -110,9 +106,9 @@ export default function RegisterFournisseurForm() {
             <p className="text-xs text-blue-600">Une fiche fournisseur a votre nom avec votre SIRET. Vous pourrez completer vos informations apres connexion.</p>
           </div>
 
-          <button type="submit" disabled={loading}
+          <button type="submit" disabled={authLoading}
             className="w-full h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.98] flex items-center justify-center">
-            {loading ? "Creation en cours..." : "Creer mon compte fournisseur"}
+            {authLoading ? <svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/><path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : "Creer mon compte fournisseur"}
           </button>
         </form>
 

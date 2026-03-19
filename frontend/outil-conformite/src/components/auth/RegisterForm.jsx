@@ -3,9 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.js";
 
 export default function RegisterForm() {
-  const { register, error, setError } = useAuth();
+  const { register, error, setError, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ nom: "", email: "", password: "", confirmPassword: "", role: "Operateur" });
   const [localError, setLocalError] = useState("");
 
@@ -14,11 +13,8 @@ export default function RegisterForm() {
   const handleSubmit = async e => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) { setLocalError("Les mots de passe ne correspondent pas."); return; }
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 700));
-    const ok = register(form);
+    const ok = await register(form);
     if (ok) navigate("/conformite");
-    setLoading(false);
   };
 
   const displayError = localError || error;
@@ -55,8 +51,8 @@ export default function RegisterForm() {
             </div>
           ))}
           {displayError && <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3.5 py-2.5">{displayError}</div>}
-          <button type="submit" disabled={loading} className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center">
-            {loading ? "Chargement..." : "Creer mon compte"}
+          <button type="submit" disabled={authLoading} className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center">
+            {authLoading ? <svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/><path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> : "Creer mon compte"}
           </button>
         </form>
         <div className="mt-4 pt-4 border-t border-slate-100 text-center">

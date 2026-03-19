@@ -4,15 +4,7 @@ import { useNavigate } from "react-router-dom";
 const TYPE_LABELS = { "application/pdf": "PDF", "image/png": "PNG", "image/jpeg": "JPEG", "image/jpg": "JPG" };
 const STATUTS = ["En attente", "Classification...", "OCR en cours...", "Extraction...", "Termine"];
 
-function FileRow({ file, onRemove, onTermine }) {
-  const [step, setStep] = useState(0);
-  const simulate = () => {
-    let current = 0;
-    const interval = setInterval(() => {
-      current += 1; setStep(current);
-      if (current >= STATUTS.length - 1) { clearInterval(interval); setTimeout(() => onTermine(file), 600); }
-    }, 900);
-  };
+function FileRow({ file, onRemove, onUpload, uploading, status }) {
   return (
     <div className="flex items-center gap-4 px-4 py-3 bg-slate-50 rounded-lg border border-slate-200">
       <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center flex-shrink-0">
@@ -23,21 +15,27 @@ function FileRow({ file, onRemove, onTermine }) {
         <p className="text-xs text-slate-400 mt-0.5">{TYPE_LABELS[file.type] ?? file.type} · {(file.size / 1024).toFixed(0)} Ko</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        {step === 0 && (
-          <button onClick={simulate} className="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all">
-            Lancer le traitement
+        {status === "pending" && (
+          <button onClick={() => onUpload(file)} disabled={uploading} className="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50">
+            {uploading ? "Upload..." : "Upload"}
           </button>
         )}
-        {step > 0 && step < STATUTS.length - 1 && (
+        {status === "uploading" && (
           <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">
             <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-            {STATUTS[step]}
+            Upload en cours...
           </div>
         )}
-        {step === STATUTS.length - 1 && (
+        {status === "uploaded" && (
           <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
             <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Termine
+            Upload
+          </div>
+        )}
+        {status === "error" && (
+          <div className="flex items-center gap-1.5 text-xs text-red-700 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Erreur
           </div>
         )}
       </div>
@@ -48,19 +46,52 @@ function FileRow({ file, onRemove, onTermine }) {
   );
 }
 
-export default function UploadZone() {
+export default function UploadZone({ useDocumentsHook }) {
   const [files, setFiles] = useState([]);
+  const [fileStatuses, setFileStatuses] = useState({});
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef();
   const navigate = useNavigate();
+  const { upload: apiUpload, uploading: isUploading } = useDocumentsHook ? useDocumentsHook() : { upload: null, uploading: false };
 
   const addFiles = newFiles => {
     const liste = Array.from(newFiles).filter(f => !files.find(x => x.name === f.name));
     setFiles(prev => [...prev, ...liste]);
+    // Initialiser les statuts
+    liste.forEach(f => {
+      setFileStatuses(prev => ({ ...prev, [f.name]: "pending" }));
+    });
   };
-  const removeFile = name => setFiles(prev => prev.filter(f => f.name !== name));
-  const onDrop = e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files); };
-  const handleTermine = file => navigate("/resultats-ocr", { state: { fichier: { nom: file.name, type: file.type, taille: file.size } } });
+
+  const removeFile = name => {
+    setFiles(prev => prev.filter(f => f.name !== name));
+    setFileStatuses(prev => {
+      const newStatuses = { ...prev };
+      delete newStatuses[name];
+      return newStatuses;
+    });
+  };
+
+  const onDrop = e => { 
+    e.preventDefault(); 
+    setDragging(false); 
+    addFiles(e.dataTransfer.files); 
+  };
+
+  const handleUpload = async (file) => {
+    setFileStatuses(prev => ({ ...prev, [file.name]: "uploading" }));
+    
+    if (apiUpload) {
+      const success = await apiUpload([file]);
+      setFileStatuses(prev => ({ ...prev, [file.name]: success ? "uploaded" : "error" }));
+      
+      if (success) {
+        setTimeout(() => {
+          navigate("/resultats-ocr", { state: { fichier: { nom: file.name, type: file.type, taille: file.size } } });
+        }, 500);
+      }
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -87,7 +118,14 @@ export default function UploadZone() {
             <p className="text-xs font-medium text-slate-600">{files.length} fichier{files.length > 1 ? "s" : ""} selectionne{files.length > 1 ? "s" : ""}</p>
             <button onClick={() => setFiles([])} className="text-xs text-red-500 hover:text-red-700 transition-colors">Tout supprimer</button>
           </div>
-          {files.map(file => <FileRow key={file.name} file={file} onRemove={removeFile} onTermine={handleTermine} />)}
+          {files.map(file => <FileRow 
+            key={file.name} 
+            file={file} 
+            onRemove={removeFile} 
+            onUpload={handleUpload}
+            uploading={isUploading}
+            status={fileStatuses[file.name] || "pending"}
+          />)}
         </div>
       )}
     </div>
