@@ -7,10 +7,7 @@ const documentSchema = new mongoose.Schema({
     },
     originalName: String,
     fileSize: Number,
-    filePath: {
-        type: String,
-        required: true,
-    },
+    gridfsId: {type: mongoose.Schema.Types.ObjectId, required: true},
     fileType: {
         type: String,
         enum: ["pdf", "image", "other"],

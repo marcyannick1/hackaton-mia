@@ -1,42 +1,47 @@
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const { GridFSBucket } = require("mongodb");
+const mongoose = require("mongoose");
 
-const uploadDir = path.join(__dirname, "../uploads");
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, uploadDir);
-  },
-  filename: (req, file, callback) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    callback(null, "invoice-" + uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const fileFilter = (req, file, callback) => {
-  const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
-
-  if (allowedTypes.includes(file.mimetype)) {
-    callback(null, true);
-  } else {
-    callback(
-      new Error(
-        "Format non supporté. Seuls les PDF, JPG et PNG sont autorisés.",
-      ),
-      false,
-    );
-  }
-};
-
+// Multer stocke en mémoire, on upload ensuite dans GridFS manuellement
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, callback) => {
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+    if (allowedTypes.includes(file.mimetype)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Format non supporté. Seuls les PDF, JPG et PNG sont autorisés."), false);
+    }
+  },
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
-module.exports = upload;
+// Fonction à appeler après upload.single() dans le controller
+async function saveToGridFS(file) {
+  const bucket = new GridFSBucket(mongoose.connection.db, {
+    bucketName: "upload",
+  });
+
+  const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+  const ext = { "application/pdf": ".pdf", "image/jpeg": ".jpg", "image/png": ".png" };
+  const filename = "invoice-" + uniqueSuffix + (ext[file.mimetype] ?? "");
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = bucket.openUploadStream(filename, {
+      metadata: { originalName: file.originalname },
+    });
+
+    uploadStream.on("finish", () => resolve({
+      id: uploadStream.id,       // ObjectId GridFS → gridfsId dans ton Document
+      filename,
+      size: file.size,
+      mimetype: file.mimetype,
+      originalname: file.originalname,
+    }));
+    uploadStream.on("error", reject);
+
+    uploadStream.end(file.buffer);  // file.buffer vient de memoryStorage
+  });
+}
+
+module.exports = { upload, saveToGridFS };
