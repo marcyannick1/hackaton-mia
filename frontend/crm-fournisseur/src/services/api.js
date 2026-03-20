@@ -37,6 +37,7 @@ export const companyAPI = {
   updateCompany: (id, data) => api.put(`/companies/${id}`, data),
   deleteCompany: (id) => api.delete(`/companies/${id}`),
   getCompanyBySiret: (siret) => api.get(`/companies/siret/${siret}`),
+  getCompanyDocuments: (companyId) => api.get(`/documents/company/${companyId}`),
 };
 
 // Document endpoints

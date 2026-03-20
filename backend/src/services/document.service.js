@@ -1,4 +1,5 @@
 const Document = require("../models/document.model");
+const CuratedDocument = require("../models/curatedDocument.model")
 const fs = require("fs").promises;
 
 exports.getAllDocuments = async () => {
@@ -41,10 +42,9 @@ exports.getUserDocuments = async (userId) => {
     }
 };
 
-exports.createDocument = async (fileData, userId) => {
+exports.createDocument = async (fileData, userId, companyId) => {
     try {
-        // "path" remplacé par "id" (ObjectId GridFS)
-        const { filename, originalname, size, id, mimetype } = fileData;
+        const {filename, originalname, size, id, mimetype} = fileData;
 
         let fileType = "other";
         if (mimetype === "application/pdf") {
@@ -57,10 +57,11 @@ exports.createDocument = async (fileData, userId) => {
             filename,
             originalName: originalname,
             fileSize: size,
-            gridfsId: id,          // ← remplace filePath
+            gridfsId: id,
             fileType,
             mimeType: mimetype,
             uploadedBy: userId,
+            company: companyId,
             status: "uploaded",
         });
 
@@ -131,40 +132,58 @@ exports.deleteDocument = async (documentId, userId, userRole) => {
 
 exports.getDocumentById = async (documentId, userId, userRole) => {
     try {
-        const document =
-            await Document.findById(documentId).populate("extractedData");
+        let raw;
 
-        if (!document) {
-            return {
-                error: true,
-                message: "Document introuvable",
-                statusCode: 404,
-            };
+        if (userRole === "admin") {
+            raw = await Document.findById(documentId);
+        } else {
+            // Un fournisseur ne peut voir que ses propres documents
+            raw = await Document.findOne({ _id: documentId, uploadedBy: userId });
         }
 
-        if (
-            userRole !== "admin" &&
-            document.uploadedBy.toString() !== userId.toString()
-        ) {
-            return {
-                error: true,
-                message:
-                    "Accès refusé. Vous n'êtes pas autorisé à consulter ce document.",
-                statusCode: 403,
-            };
+        if (!raw) {
+            return { error: true, statusCode: 404, message: "Document introuvable" };
         }
+
+        return { error: false, statusCode: 200, data: raw.toObject() };
+
+    } catch (err) {
+        return { error: true, statusCode: 500, message: "Erreur serveur", details: err.message };
+    }
+};
+
+exports.getCuratedByRawId = async (rawDocumentId) => {
+    try {
+        const curated = await CuratedDocument.findOne({ rawDocumentId });
+        return curated || null;
+    } catch {
+        return null;
+    }
+};
+
+exports.getDocumentsByCompany = async (companyId) => {
+    try {
+
+        const rawDocs = await Document.find({company: companyId})
+            .sort({createdAt: -1});
+
+        const docsWithCurated = await Promise.all(
+            rawDocs.map(async (raw) => {
+                const curated = await CuratedDocument.findOne({rawDocumentId: raw._id});
+                return {...raw.toObject(), curatedDocument: curated || null};
+            })
+        );
 
         return {
             error: false,
-            message: "Document récupéré avec succès",
-            data: document,
+            message: "Documents récupérés avec succès",
+            data: docsWithCurated,
             statusCode: 200,
         };
     } catch (error) {
         return {
             error: true,
-            message: "Erreur lors de la récupération du document",
-            details: error.message,
+            message: "Erreur lors de la récupération des documents",
             statusCode: 500,
         };
     }

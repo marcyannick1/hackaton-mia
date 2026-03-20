@@ -7,7 +7,7 @@ export default function Sidebar() {
   const NAV_ITEMS = [
     {
       to: "/crm",
-      label: user?.role === "Fournisseur" ? "Ma fiche" : "Fournisseurs",
+      label: user?.role === "fournisseur" ? "Ma fiche" : "Fournisseurs",
       icon: (
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
           <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>

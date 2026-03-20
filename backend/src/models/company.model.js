@@ -28,7 +28,11 @@ const companySchema = new mongoose.Schema(
         urssafStatut: {
             type: String,
             enum: ['valide', 'expire', 'invalide'],
-        }
+        },
+        documents: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'RawDocument',
+        }],
     },
     {
         timestamps: true,

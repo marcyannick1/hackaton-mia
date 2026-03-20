@@ -69,23 +69,6 @@ export default function LoginForm() {
         </form>
 
         <div className="mt-6 pt-5 border-t border-slate-100">
-          <p className="text-xs text-slate-400 mb-3 font-medium uppercase tracking-wide">Comptes de demonstration</p>
-          <div className="space-y-2">
-            {[
-              { label: "Admin", email: "admin@docflow.fr", password: "admin123" },
-              { label: "Fournisseur — Batiment Tech", email: "bt@docflow.fr", password: "bt123" },
-              { label: "Fournisseur — LogiSoft", email: "ls@docflow.fr", password: "ls123" },
-            ].map(c => (
-              <div key={c.email} onClick={() => { setEmail(c.email); setPassword(c.password); setError(""); }}
-                className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 hover:bg-blue-50 border border-slate-100 cursor-pointer transition-all group">
-                <div>
-                  <p className="text-xs font-medium text-slate-700 group-hover:text-blue-700">{c.label}</p>
-                  <p className="text-xs text-slate-400">{c.email}</p>
-                </div>
-                <svg width="14" height="14" className="text-slate-300 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-              </div>
-            ))}
-          </div>
           <div className="mt-4 text-center">
             <p className="text-xs text-slate-400">
               Nouveau fournisseur ?{" "}

@@ -83,12 +83,6 @@ def ocr_task(**context):
         "createdAt": datetime.utcnow(),
     })
 
-    # --- Met à jour le statut dans rawdocuments ---
-    db.rawdocuments.update_one(
-        {"_id": ObjectId(doc_id)},
-        {"$set": {"status": "ocr_done"}}
-    )
-
     return {
         "doc_id": doc_id,
         "clean_doc_id": str(clean_doc.inserted_id),
@@ -197,12 +191,6 @@ def validate_task(**context):
             "status": validation_status,
             "updatedAt": datetime.utcnow(),
         }}
-    )
-
-    # --- Met à jour le statut final dans rawdocuments ---
-    db.rawdocuments.update_one(
-        {"_id": ObjectId(doc_id)},
-        {"$set": {"status": validation_status}}
     )
 
     return {

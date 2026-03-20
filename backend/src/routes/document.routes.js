@@ -26,4 +26,11 @@ router.post(
   documentController.uploadDocument,
 );
 
+router.get(
+  "/company/:companyId",
+  authenticate,
+  authorizeRoles("admin", "fournisseur"),
+  documentController.getDocumentsByCompany,
+);
+
 module.exports = router;

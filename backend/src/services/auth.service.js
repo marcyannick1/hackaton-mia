@@ -73,9 +73,10 @@ exports.SignIn = async (data) => {
 
         const token = await generateJWT({
             userId: user.id,
-            username: user.username,
+            username: user.name,
             email: user.email,
             role: user.role,
+            companyId: user.company
         });
 
         await User.updateOne({_id: user._id}, {lastLogin: new Date()});
@@ -83,7 +84,15 @@ exports.SignIn = async (data) => {
         return {
             error: false,
             message: "Vous êtes désormais connecté.",
-            data: {token},
+            data: {
+                token,
+                _id: user._id,
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                company: user.company,
+            },
             statusCode: 200,
         };
     } catch (error) {
