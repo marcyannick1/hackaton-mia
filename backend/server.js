@@ -5,6 +5,7 @@ const cors = require("cors");
 const connectDB = require("./config/database.config");
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,6 +18,7 @@ app.get("/", (_, res) => {
 app.use("/auth", require("./src/routes/auth.routes"));
 app.use("/users", require("./src/routes/user.routes"));
 app.use("/documents", require("./src/routes/document.routes"));
+app.use("/companies", require("./src/routes/company.routes"));
 
 const PORT = process.env.API_PORT || 3000;
 

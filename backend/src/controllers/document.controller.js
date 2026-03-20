@@ -65,10 +65,12 @@ exports.uploadDocument = async (req, res) => {
         const gridfsFile = await saveToGridFS(req.file);
 
         const userId = req.user.userId;
+        const companyId = req.user.companyId;
 
         const result = await documentService.createDocument(
             gridfsFile,
-            userId
+            userId,
+            companyId
         );
 
         if (result.error) {
@@ -141,17 +143,23 @@ exports.deleteDocument = async (req, res) => {
 
 exports.getDocumentById = async (req, res) => {
     try {
-        const documentId = req.params.id;
-        const userId = req.user.userId;
-        const userRole = req.user.role;
-
         const result = await documentService.getDocumentById(
-            documentId,
-            userId,
-            userRole,
+            req.params.id,
+            req.user.userId,
+            req.user.role
         );
 
-        return res.status(result.statusCode).json(result);
+        if (result.error) {
+            return res.status(result.statusCode).json(result);
+        }
+
+        const curated = await documentService.getCuratedByRawId(result.data._id);
+
+        return res.status(200).json({
+            error: false,
+            data: {...result.data, curatedDocument: curated || null},
+        });
+
     } catch (error) {
         return res.status(500).json({
             error: true,
@@ -159,4 +167,25 @@ exports.getDocumentById = async (req, res) => {
             details: error.message,
         });
     }
+};
+
+
+exports.getDocumentsByCompany = async (req, res) => {
+    const {companyId} = req.params;
+    const result = await documentService.getDocumentsByCompany(companyId);
+    return res.status(result.statusCode).json(result);
+};
+
+exports.getAnomalies = async (req, res) => {
+    const result = await documentService.getAnomalies();
+    return res.status(result.statusCode).json(result);
+};
+
+exports.updateCuratedStatus = async (req, res) => {
+    const {status} = req.body;
+    if (!["validated", "rejected"].includes(status)) {
+        return res.status(400).json({error: true, message: "Statut invalide"});
+    }
+    const result = await documentService.updateCuratedStatus(req.params.id, status);
+    return res.status(result.statusCode).json(result);
 };
