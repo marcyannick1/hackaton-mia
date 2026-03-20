@@ -14,7 +14,7 @@ def extract_totaux(text: str) -> Tuple[Optional[str], Optional[str], Optional[st
     bloc = re.search(r"Total\s+HT(.*)", text, re.DOTALL | re.IGNORECASE)
     if not bloc:
         return None, None, None
-    montants = re.findall(r'(?:(?<=\d{4})|(?<!\d))(\d{1,7}[.,]\d{2})(?=\s|€|\n|$)', bloc.group(1))
+    montants = re.findall(r'(?<!\d)(\d{1,7}[.,]\d{2})(?=\s|€|\n|$)', bloc.group(1))
     return (montants[0] if len(montants) > 0 else None,
             montants[1] if len(montants) > 1 else None,
             montants[2] if len(montants) > 2 else None)
