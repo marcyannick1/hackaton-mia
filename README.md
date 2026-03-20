@@ -201,36 +201,28 @@ Elle combine la puissance de l'**intelligence artificielle**, de la **vision par
 
 ```bash
 # Versions minimales
-Node.js ≥ 20.0.0
-Python ≥ 3.12
-Docker & Docker Compose ≥ 20.10
-MongoDB ≥ 6.0
-PostgreSQL ≥ 14 (optionnel)
+Docker ≥ 20.10
+Docker Compose ≥ 2.0
+Git (pour cloner le repo)
 ```
 
-### Installation des Prérequis
+Tout le reste (Node.js, Python, MongoDB, Airflow, etc.) est automatiquement installé dans les containers Docker.
 
-**macOS (Homebrew)**
+### Installation de Docker
+
+**Windows & macOS**
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (inclut Docker & Compose)
+
+**Linux (Ubuntu/Debian)**
 ```bash
-brew install node python@3.12 docker postgresql git
+# Docker
+sudo apt-get update
+sudo apt-get install docker.io docker-compose git -y
+
+# Donner permission user
+sudo usermod -aG docker $USER
+newgrp docker
 ```
-
-**Ubuntu/Debian**
-```bash
-sudo apt-get install nodejs python3.12 docker.io postgresql git
-```
-
-**Windows**
-- [Node.js](https://nodejs.org/)
-- [Python 3.12](https://www.python.org/downloads/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Git for Windows](https://git-scm.com/)
-
-### GPU (Optionnel mais Recommandé)
-Pour accélération PyTorch :
-- **NVIDIA GPU** avec Compute Capability ≥ 3.5
-- **CUDA 12.1** ([Installer](https://developer.nvidia.com/cuda-downloads))
-- **cuDNN 8.9** ([Installer](https://developer.nvidia.com/cudnn))
 
 ---
 
@@ -243,59 +235,15 @@ git clone https://github.com/your-org/hackaton-mia.git
 cd hackaton-mia
 ```
 
-### 2️⃣ Backend Node.js
+### 2️⃣ Configuration Docker (Optionnel)
 
-```bash
-cd backend
-
-# Installer les dépendances
-npm install
-
-# Copier la config
-cp .env.example .env
-
-# Éditer .env avec vos paramètres
-PORT=3000
-MONGO_URI=mongodb://mongo:27017/hackathon
-JWT_SECRET=your_secret_key_change_me
-```
-
-### 3️⃣ Service Python IA
-
-```bash
-cd ai_service
-
-# Créer environnement virtuel
-python -m venv venv
-source venv/bin/activate  # macOS/Linux
-# ou
-venv\Scripts\activate    # Windows
-
-# Installer dépendances
-pip install -r requirements.txt
-
-# ⚠️ Important : Le modèle MCL pré-entraîné doit être présent
-# model/asl_alphabet.pth (télécharger ou entraîner)
-```
-
-### 4️⃣ Frontend
-
-```bash
-cd frontend
-
-# Installer dépendances
-npm install
-
-# Créer .env.local
-REACT_APP_API_URL=http://localhost:3000
-REACT_APP_WS_URL=ws://localhost:3000
-```
+Tous les services sont configurés automatiquement via `docker-compose.yml`. Pas d'installation manuelle requise !
 
 ---
 
 ## 🎬 Démarrage
 
-### Avec Docker Compose (⭐ Recommandé)
+### Avec Docker Compose (Seule Méthode Supportée)
 
 ```bash
 # Depuis la racine du projet
@@ -311,43 +259,31 @@ docker-compose up -d --build
 - ✅ MongoDB : localhost:27017
 - ✅ Airflow : http://localhost:8080
 - ✅ Python AI : http://localhost:8000/docs
+- ✅ OCR API : http://localhost:8001/docs
+- ✅ Fraud Detection : http://localhost:8002/docs
 
-### Démarrage Manuel (4 Terminaux)
+### Arrêter les Services
 
-**Terminal 1 : Python IA Service**
 ```bash
-cd ai_service
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-# ✅ API disponible sur http://localhost:8000/docs
-```
+# Arrêter tous les containers
+docker-compose down
 
-**Terminal 2 : Backend Node.js**
-```bash
-cd backend
-npm run dev
-# ✅ Backend sur http://localhost:3000
-```
-
-**Terminal 3 : Frontend**
-```bash
-cd frontend
-npm run dev
-# ✅ App sur http://localhost:5173
-```
-
-**Terminal 4 : Création Admin**
-```bash
-cd backend
-npm run seed:admin
-# ✅ Admin créé : admin / Admin123!
+# Arrêter et supprimer les volumes (reset complet)
+docker-compose down -v
 ```
 
 ### Vérifier le Démarrage
 
 ```bash
 # Health checks
-curl http://localhost:3000/health
-curl http://localhost:8000/docs
+curl http://localhost:3000/
+curl http://localhost:8080/
+curl http://localhost:5173/
+
+# Logs d'un service spécifique
+docker-compose logs -f backend
+docker-compose logs -f airflow
+```
 curl http://localhost:5173
 
 # Logs
@@ -451,57 +387,41 @@ const finalDoc = {
 
 ## ⚙️ Configuration
 
-### Variables d'Environnement
+### Variables d'Environnement (Automatiques avec Docker)
 
-#### Backend (`backend/.env`)
-```env
-# Server
-PORT=3000
-NODE_ENV=development
+Toutes les variables d'environnement sont pré-configurées dans `docker-compose.yml`. Les services communiquent entre eux via les noms de containers.
 
-# Database
-MONGO_URI=mongodb://mongo:27017/hackathon
-MONGO_USERNAME=
-MONGO_PASSWORD=
-
-# Auth
-JWT_SECRET=your_super_secret_key
-JWT_EXPIRY=24h
-
-# Admin
-ADMIN_EMAIL=admin@hackathon-mia.fr
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=Admin123!
-
-# Storage
-UPLOAD_DIR=./uploads
-MAX_FILE_SIZE=50MB
-
-# Services
-FRAUD_API_URL=http://localhost:5000
-OCR_API_URL=http://localhost:8000
+#### Fichiers de Configuration
+```
+├── docker-compose.yml       # Toute la config
+├── backend/                 # Backend service
+│   └── Dockerfile
+├── airflow/                 # Airflow DAGs
+│   ├── Dockerfile
+│   └── dags/
+├── ocr/                     # OCR service
+│   └── Dockerfile
+└── fraud_detection/         # Fraud detection service
+    └── Dockerfile
 ```
 
-#### Python (`ai_service/.env`)
-```env
-# FastAPI
-UVICORN_HOST=0.0.0.0
-UVICORN_PORT=8000
-UVICORN_RELOAD=true
+#### Modification Configuration
 
-# ML Model
-MODEL_PATH=model/asl_alphabet.pth
-DEVICE=cuda  # ou 'cpu'
+Si vous voulez modifier des paramètres (ports, credentials, etc.), éditez `docker-compose.yml` :
 
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017/hackathon
+```yaml
+services:
+  backend:
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/hackathon
+      - JWT_SECRET=your_secret_key
+      - PORT=3000
 ```
 
-#### Frontend (`frontend/.env.local`)
-```env
-REACT_APP_API_URL=http://localhost:3000
-REACT_APP_WS_URL=ws://localhost:3000
-REACT_APP_ENV=development
+Puis redémarrez :
+```bash
+docker-compose down
+docker-compose up --build
 ```
 
 ---
@@ -645,55 +565,57 @@ hackaton-mia/
 
 ## 👨‍💻 Développement
 
-### Commandes Utiles
+### Commandes Docker
 
+```bash
+# Build & démarrer tous les services
+docker-compose up --build
+
+# Démarrer en arrière-plan
+docker-compose up -d --build
+
+# Afficher les logs
+docker-compose logs -f                    # Tous les services
+docker-compose logs -f backend            # Juste le backend
+docker-compose logs -f airflow            # Juste Airflow
+docker-compose logs -f ocr                # Juste l'OCR
+
+# Arrêter
+docker-compose down
+
+# Arrêter et supprimer les volumes (reset complet)
+docker-compose down -v
+```
+
+### Modifier le Code
+
+Les fichiers source sont montés en volumes. Les changements sont visibles directement :
+```bash
+# Modifier le code → changements appliqués automatiquement
+vim backend/src/routes/auth.routes.js    # Hot reload activé
+
+# Pour les changements qui nécessitent un rebuild
+docker-compose restart backend
+```
+
+### Accéder aux Services
 ```bash
 # Frontend
-cd frontend && npm run dev         # Dev avec hot reload
-cd frontend && npm run build       # Build production
-cd frontend && npm run lint        # ESLint check
+http://localhost:5173
 
-# Backend
-cd backend && npm run dev          # Nodemon watch
-cd backend && npm run seed:admin   # Créer admin
-cd backend && npm test             # Tests
+# Backend API
+http://localhost:3000
+curl http://localhost:3000/
 
-# Python IA
-cd ai_service && python main.py    # FastAPI
-cd ai_service && pytest            # Tests
+# MongoDB (depuis un container)
+docker-compose exec mongo mongosh mongodb://127.0.0.1:27017/hackathon
 
-# Docker
-docker-compose up --build          # Build & run all
-docker-compose logs -f backend     # Logs
-docker-compose down                # Stop all
-```
+# Airflow
+http://localhost:8080
 
-### Style de Code
-
-- ✅ ESLint pour JavaScript/TypeScript
-- ✅ Black + Flake8 pour Python
-- ✅ Commits atomiques avec messages clairs
-
-### Debugging
-
-**Python Logs**
-```bash
-# Voir tous les traitements
-cd ai_service
-LOGLEVEL=DEBUG python main.py
-```
-
-**Docker Logs**
-```bash
-docker-compose logs -f ai_service --until 300s
-docker-compose logs backend | grep ERROR
-```
-
-**MongoDB**
-```bash
-# Accès direct
-mongosh mongodb://localhost:27017/hackathon
-db.documents.find({ status: 'failed' })
+# Python APIs (Swagger)
+http://localhost:8000/docs   # OCR
+http://localhost:8001/docs   # Fraud Detection
 ```
 
 ---
