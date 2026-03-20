@@ -2,28 +2,18 @@
 
 ## Setup Instructions
 
-1. **Install Required Python Packages:**
-    - `faker`: For generating fake data.
-    - `fpdf`: For creating PDF files.
-    - `pdf2image`: For converting PDFs to images.
-    - `pytesseract`: For performing OCR.
+1. **Launch your docker engine**
+2. **Go to project root directory**
+```shell
+cd hackaton-mia
+```
+3. **Launch container**
+```shell
+docker compose up --build
+```
+4. **Access to OCR**  
+*Access OCR with __127.0.0.1:8000__*
+  
 
-    Install these packages using pip:
-    ```
-    pip install faker fpdf pdf2image pytesseract
-    ```
-
-2. **Install Tesseract:**
-    - Tesseract must be installed on your host machine. Refer to [Tesseract documentation](https://github.com/tesseract-ocr/tesseract) for installation instructions.
-
-## Usage
-
-- **Extracting Text from Invoices:**
-  - Place your invoice PDFs in the `/docs` directory.
-  - Rename them as `invoice{nb}.pdf` (e.g., `invoice1.pdf`, `invoice2.pdf`, ...).
-  - Run `ocr_test.py` to extract text from these invoices.
-
-## Project Structure
-
-- `/docs`: Directory for invoice PDFs and extracted text.
-- `ocr_test.py`: Script for OCR on real invoices.
+5. **View OCR API Docs and test Api**  
+*Access __127.0.0.1:8000/docs__*
