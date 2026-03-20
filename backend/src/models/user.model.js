@@ -2,13 +2,8 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
     {
-        username: {
+        name: {
             type: String,
-            unique: true,
-            required: [true, "Username is required"],
-            trim: true,
-            minlength: 3,
-            maxlength: 50,
         },
         email: {
             type: String,
@@ -39,13 +34,17 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        company: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Company',
+            required: false,
+        },
     },
     {
         timestamps: true,
     },
 );
 
-userSchema.index({username: 1});
 userSchema.index({email: 1});
 
 const User = mongoose.model("User", userSchema);

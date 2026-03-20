@@ -11,13 +11,6 @@ api.interceptors.request.use(config => {
   }
   return config;
 });
-api.interceptors.response.use(res => res, err => {
-  if (err.response?.status === 401) {
-    localStorage.removeItem("crm_user");
-    window.location.href = "/login";
-  }
-  return Promise.reject(err);
-});
 
 // Auth endpoints
 export const authAPI = {
@@ -43,6 +36,8 @@ export const companyAPI = {
   getCompanyById: (id) => api.get(`/companies/${id}`),
   updateCompany: (id, data) => api.put(`/companies/${id}`, data),
   deleteCompany: (id) => api.delete(`/companies/${id}`),
+  getCompanyBySiret: (siret) => api.get(`/companies/siret/${siret}`),
+  getCompanyDocuments: (companyId) => api.get(`/documents/company/${companyId}`),
 };
 
 // Document endpoints

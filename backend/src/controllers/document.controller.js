@@ -1,221 +1,191 @@
 const documentService = require("../services/document.service");
-const axios = require("axios");
-const { saveToGridFS } = require("../middlewares/upload.middleware");
+const axios = require("axios")
+const {saveToGridFS} = require("../middlewares/upload.middleware");
 
 exports.getAllDocuments = async (req, res) => {
-  try {
-    const result = await documentService.getAllDocuments();
+    try {
+        const result = await documentService.getAllDocuments();
 
-    if (result.error) {
-      return res.status(result.statusCode).json({
-        error: true,
-        message: result.message,
-      });
+        if (result.error) {
+            return res.status(result.statusCode).json({
+                error: true,
+                message: result.message,
+            });
+        }
+
+        return res.status(result.statusCode).json({
+            error: false,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: "Erreur lors de la récupération des documents",
+            details: error.message,
+        });
     }
-
-    return res.status(result.statusCode).json({
-      error: false,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur lors de la récupération des documents",
-      details: error.message,
-    });
-  }
 };
 
 exports.getMyDocuments = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const result = await documentService.getUserDocuments(userId);
+    try {
+        const userId = req.user.userId;
+        const result = await documentService.getUserDocuments(userId);
 
-    if (result.error) {
-      return res.status(result.statusCode).json({
-        error: true,
-        message: result.message,
-      });
+        if (result.error) {
+            return res.status(result.statusCode).json({
+                error: true,
+                message: result.message,
+            });
+        }
+
+        return res.status(result.statusCode).json({
+            error: false,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: "Erreur lors de la récupération de vos documents",
+            details: error.message,
+        });
     }
-
-    return res.status(result.statusCode).json({
-      error: false,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur lors de la récupération de vos documents",
-      details: error.message,
-    });
-  }
 };
 
 exports.uploadDocument = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        error: true,
-        message: "Aucun fichier n'a été fourni",
-      });
-    }
-
-    const gridfsFile = await saveToGridFS(req.file);
-
-    const userId = req.user.userId;
-
-    const result = await documentService.createDocument(gridfsFile, userId);
-
-    if (result.error) {
-      return res.status(result.statusCode).json({
-        error: true,
-        message: result.message,
-      });
-    }
-
-    // Envoi a apache airflow
-    const documentId = result.data._id.toString();
-
     try {
-      await axios.post(
-        "http://airflow:8080/api/v1/dags/document_pipeline/dagRuns",
-        {
-          conf: { document_id: documentId },
-        },
-        {
-          auth: {
-            username: "admin",
-            password: "admin",
-          },
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        },
-      );
-    } catch (err) {
-      console.error("Airflow trigger error:", err.message);
-    }
+        if (!req.file) {
+            return res.status(400).json({
+                error: true,
+                message: "Aucun fichier n'a été fourni",
+            });
+        }
 
-    return res.status(result.statusCode).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur lors de l'upload du document",
-      details: error.message,
-    });
-  }
+        const gridfsFile = await saveToGridFS(req.file);
+
+        const userId = req.user.userId;
+        const companyId = req.user.companyId;
+
+        const result = await documentService.createDocument(
+            gridfsFile,
+            userId,
+            companyId
+        );
+
+        if (result.error) {
+            return res.status(result.statusCode).json({
+                error: true,
+                message: result.message,
+            });
+        }
+
+
+        // Envoi a apache airflow
+        const documentId = result.data._id.toString();
+
+        try {
+            await axios.post(
+                "http://airflow:8080/api/v1/dags/document_pipeline/dagRuns",
+                {
+                    conf: {document_id: documentId}
+                },
+                {
+                    auth: {
+                        username: "admin",
+                        password: "admin"
+                    }
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+        } catch (err) {
+            console.error("Airflow trigger error:", err.message);
+        }
+
+        return res.status(result.statusCode).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: "Erreur lors de l'upload du document",
+            details: error.message,
+        });
+    }
 };
 
 exports.deleteDocument = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.userId;
-    const userRole = req.user.role;
+    try {
+        const {id} = req.params;
+        const userId = req.user.userId;
+        const userRole = req.user.role;
 
-    const result = await documentService.deleteDocument(id, userId, userRole);
+        const result = await documentService.deleteDocument(id, userId, userRole);
 
-    if (result.error) {
-      return res.status(result.statusCode).json({
-        error: true,
-        message: result.message,
-      });
+        if (result.error) {
+            return res.status(result.statusCode).json({
+                error: true,
+                message: result.message,
+            });
+        }
+
+        return res.status(result.statusCode).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: "Erreur serveur lors de la suppression du document",
+            details: error.message,
+        });
     }
-
-    return res.status(result.statusCode).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur serveur lors de la suppression du document",
-      details: error.message,
-    });
-  }
 };
 
 exports.getDocumentById = async (req, res) => {
-  try {
-    const documentId = req.params.id;
-    const userId = req.user.userId;
-    const userRole = req.user.role;
+    try {
+        const result = await documentService.getDocumentById(
+            req.params.id,
+            req.user.userId,
+            req.user.role
+        );
 
-    const result = await documentService.getDocumentById(
-      documentId,
-      userId,
-      userRole,
-    );
+        if (result.error) {
+            return res.status(result.statusCode).json(result);
+        }
 
-    return res.status(result.statusCode).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur serveur lors de la récupération du document",
-      details: error.message,
-    });
-  }
+        const curated = await documentService.getCuratedByRawId(result.data._id);
+
+        return res.status(200).json({
+            error: false,
+            data: {...result.data, curatedDocument: curated || null},
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            error: true,
+            message: "Erreur serveur lors de la récupération du document",
+            details: error.message,
+        });
+    }
 };
 
-exports.getCuratedData = async (req, res) => {
-  try {
-    const documentId = req.params.id;
-    const userId = req.user.userId;
-    const userRole = req.user.role;
 
-    const result = await documentService.getCuratedData(
-      documentId,
-      userId,
-      userRole,
-    );
-
-    if (result.error) {
-      return res.status(result.statusCode).json({
-        error: true,
-        message: result.message,
-        details: result.details,
-      });
-    }
-
+exports.getDocumentsByCompany = async (req, res) => {
+    const {companyId} = req.params;
+    const result = await documentService.getDocumentsByCompany(companyId);
     return res.status(result.statusCode).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur serveur lors de la récupération des données consolidées",
-      details: error.message,
-    });
-  }
 };
 
-exports.validateDocument = async (req, res) => {
-  try {
-    const documentId = req.params.id;
-    const { status } = req.body;
-
-    if (!status) {
-      return res.status(400).json({
-        error: true,
-        message: "Le champ 'status' est requis.",
-      });
-    }
-
-    const result = await documentService.validateDocument(documentId, status);
-
-    if (result.error) {
-      return res.status(result.statusCode).json({
-        error: true,
-        message: result.message,
-        details: result.details,
-      });
-    }
-
+exports.getAnomalies = async (req, res) => {
+    const result = await documentService.getAnomalies();
     return res.status(result.statusCode).json(result);
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: "Erreur serveur lors de la validation du document",
-      details: error.message,
-    });
-  }
+};
+
+exports.updateCuratedStatus = async (req, res) => {
+    const {status} = req.body;
+    if (!["validated", "rejected"].includes(status)) {
+        return res.status(400).json({error: true, message: "Statut invalide"});
+    }
+    const result = await documentService.updateCuratedStatus(req.params.id, status);
+    return res.status(result.statusCode).json(result);
 };

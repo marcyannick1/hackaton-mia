@@ -10,10 +10,12 @@ export function FournisseurProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   // Filtrer les fournisseurs selon le rôle
-  const fournisseursFiltres = user?.role === "Fournisseur"
+  const fournisseursFiltres = user?.role === "fournisseur"
     ? fournisseursFromAuth.filter(f => {
-        // Pour un fournisseur, afficher sa fiche (basée sur le owner du company)
-        return f.owner === user._id || f.owner === user.id;
+        // Pour un fournisseur, afficher sa fiche (basée sur le company)
+        const userCompanyId = user.company?._id || user.companyId;
+        const companyId = f._id || f.id;
+        return userCompanyId === companyId;
       })
     : fournisseursFromAuth;
 

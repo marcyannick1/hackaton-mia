@@ -3,12 +3,11 @@ const router = express.Router();
 const companyController = require("../controllers/company.controller");
 const authenticate = require("../middlewares/authenticate.middleware");
 const validateWithJoi = require("../middlewares/validation.middleware");
-const { createCompanySchema } = require("../dtos/company.dtos");
 
 router.post(
   "/",
-  authenticate,
-  validateWithJoi(createCompanySchema),
+  // authenticate,
+  // validateWithJoi(createCompanySchema),
   companyController.createCompany,
 );
 

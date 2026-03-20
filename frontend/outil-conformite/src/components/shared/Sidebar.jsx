@@ -8,7 +8,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
-  const items = NAV_ITEMS.filter(i => !i.adminOnly || user?.role === "Administrateur");
+  const items = NAV_ITEMS.filter(i => !i.adminOnly || user?.role === "admin");
   return (
     <aside className="w-56 flex flex-col bg-white border-r border-slate-200 h-full">
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-100">
