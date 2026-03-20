@@ -5,32 +5,45 @@ const authenticate = require("../middlewares/authenticate.middleware");
 const authorizeRoles = require("../middlewares/authorize.middleware");
 const {upload} = require("../middlewares/upload.middleware");
 const validateWithJoi = require("../middlewares/validation.middleware");
-const { uploadMetadataSchema } = require("../dtos/document.dtos");
+const {uploadMetadataSchema} = require("../dtos/document.dtos");
 
 router.get(
-  "/",
-  authenticate,
-  authorizeRoles("admin"),
-  documentController.getAllDocuments,
+    "/",
+    authenticate,
+    authorizeRoles("admin"),
+    documentController.getAllDocuments,
 );
 router.get("/me", authenticate, documentController.getMyDocuments);
+router.get(
+    "/anomalies",
+    authenticate,
+    authorizeRoles("admin"),
+    documentController.getAnomalies
+);
 
 router.get("/:id", authenticate, documentController.getDocumentById);
 router.delete("/:id", authenticate, documentController.deleteDocument);
 
 router.post(
-  "/upload",
-  authenticate,
-  upload.single("file"),
-  validateWithJoi(uploadMetadataSchema),
-  documentController.uploadDocument,
+    "/upload",
+    authenticate,
+    upload.single("file"),
+    validateWithJoi(uploadMetadataSchema),
+    documentController.uploadDocument,
 );
 
 router.get(
-  "/company/:companyId",
-  authenticate,
-  authorizeRoles("admin", "fournisseur"),
-  documentController.getDocumentsByCompany,
+    "/company/:companyId",
+    authenticate,
+    authorizeRoles("admin", "fournisseur"),
+    documentController.getDocumentsByCompany,
+);
+
+router.patch(
+    "/curated/:id/status",
+    authenticate,
+    authorizeRoles("admin"),
+    documentController.updateCuratedStatus
 );
 
 module.exports = router;

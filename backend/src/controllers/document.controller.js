@@ -175,3 +175,17 @@ exports.getDocumentsByCompany = async (req, res) => {
     const result = await documentService.getDocumentsByCompany(companyId);
     return res.status(result.statusCode).json(result);
 };
+
+exports.getAnomalies = async (req, res) => {
+    const result = await documentService.getAnomalies();
+    return res.status(result.statusCode).json(result);
+};
+
+exports.updateCuratedStatus = async (req, res) => {
+    const {status} = req.body;
+    if (!["validated", "rejected"].includes(status)) {
+        return res.status(400).json({error: true, message: "Statut invalide"});
+    }
+    const result = await documentService.updateCuratedStatus(req.params.id, status);
+    return res.status(result.statusCode).json(result);
+};

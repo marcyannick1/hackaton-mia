@@ -188,3 +188,43 @@ exports.getDocumentsByCompany = async (companyId) => {
         };
     }
 };
+
+
+exports.getAnomalies = async () => {
+    try {
+        const curatedDocs = await CuratedDocument.find({
+            $or: [
+                { status: "rejected" },
+                { status: "suspicious" }, // ✅ ajout
+                { "mlResult.is_anomaly": true },
+            ],
+        }).sort({ createdAt: -1 });
+
+        const results = await Promise.all(
+            curatedDocs.map(async (curated) => {
+                const raw = await Document.findById(curated.rawDocumentId)
+                    .populate("company", "raisonSociale siret statut");
+                return { ...curated.toObject(), rawDocument: raw || null };
+            })
+        );
+
+        return { error: false, statusCode: 200, data: results };
+    } catch (err) {
+        console.error("Erreur getAnomalies :", err);
+        return { error: true, statusCode: 500, message: "Erreur serveur", details: err.message };
+    }
+};
+
+exports.updateCuratedStatus = async (curatedId, status) => {
+    try {
+        const curated = await CuratedDocument.findByIdAndUpdate(
+            curatedId,
+            { status },
+            { new: true }
+        );
+        if (!curated) return { error: true, statusCode: 404, message: "Document introuvable" };
+        return { error: false, statusCode: 200, data: curated };
+    } catch (err) {
+        return { error: true, statusCode: 500, message: "Erreur serveur", details: err.message };
+    }
+};
