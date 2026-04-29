@@ -1,664 +1,450 @@
-# 🏥 Hackaton MIA
+# Hackaton MIA
 
-Plateforme intelligente de traitement et validation des documents administratifs et comptables avec détection de fraude par IA.
+Plateforme de traitement automatisé de documents administratifs et comptables avec détection de fraude par IA.
 
-React · Node.js · Python · MongoDB · Docker · PyTorch
-
----
-
-## 📋 Table des Matières
-
-- [À propos](#-à-propos)
-- [Fonctionnalités](#-fonctionnalités)
-- [Architecture](#️-architecture)
-- [Technologies](#-technologies)
-- [Prérequis](#-prérequis)
-- [Installation](#-installation)
-- [Démarrage](#-démarrage)
-- [Pipeline de Traitement](#-pipeline-de-traitement)
-- [Configuration](#️-configuration)
-- [Utilisation](#-utilisation)
-- [Structure du Projet](#-structure-du-projet)
-- [Développement](#-développement)
-- [Contribuer](#-contribuer)
-- [Licence](#-licence)
+**Stack** : React · Node.js · Python · MongoDB · Docker · Apache Airflow
 
 ---
 
-## 🎯 À propos
+## Table des matières
 
-**Hackaton MIA** (Managed Intelligence for Administration) est une plateforme d'automatisation conçue pour **traiter, valider et analyser les documents administratifs et comptables** en temps réel. 
-
-Elle combine la puissance de l'**intelligence artificielle**, de la **vision par ordinateur** et du **machine learning** pour :
-
-- ✨ **Extraire automatiquement** les données des documents (factures, devis, attestations, KBIS, RIB)
-- 🔍 **Valider** la conformité selon les règles métier
-- 🚨 **Détecter les fraudes** via des modèles d'anomalies
-- 📊 **Archiver structurément** les données pour exploitation
-
----
-
-## ✨ Fonctionnalités
-
-### 📸 Capture & Traitement
-- Téléchargement de documents (PDF, images)
-- Stockage en 3 zones : **RAW** → **CLEAN** → **CURATED**
-- Pagination et gestion de fichiers volumineux
-
-### 🧠 Intelligence Artificielle
-- **OCR avancé** (Tesseract) : Extraction de texte
-- **MediaPipe/Vision** : Détection de structures documentaires
-- **MLP Neural Network** : Classification des types de documents
-- **Isolation Forest** : Détection d'anomalies
-
-### 🔄 Orchestration
-- **Airflow DAGs** : Pipelines de traitement automatisés
-- **WebSocket** : Communication temps réel
-
-### 🔐 Gestion
-- Authentification JWT multi-rôles
-- Contrôle d'accès granulaire (RBAC)
-- Audit trail complet
-- Conformité RGPD
-
-### 📊 Dashboard Analytique
-- Suivi d'extraction en temps réel
-- Statistiques de conformité
-- Alertes fraude
-- Rapports d'export
+- [À propos](#à-propos)
+- [Architecture](#architecture)
+- [Technologies](#technologies)
+- [Documents supportés](#documents-supportés)
+- [Prérequis](#prérequis)
+- [Installation et démarrage](#installation-et-démarrage)
+- [Services et ports](#services-et-ports)
+- [Pipeline de traitement](#pipeline-de-traitement)
+- [Détection de fraude](#détection-de-fraude)
+- [API — Principaux endpoints](#api--principaux-endpoints)
+- [Structure du projet](#structure-du-projet)
+- [Variables d'environnement](#variables-denvironnement)
+- [Génération de données de test](#génération-de-données-de-test)
 
 ---
 
-## 🏗️ Architecture
+## À propos
+
+**Hackaton MIA** (Managed Intelligence for Administration) est une plateforme d'automatisation intelligente qui traite, valide et analyse des documents administratifs (factures, devis, attestations, KBIS, RIB, URSSAF) en temps réel.
+
+Elle s'appuie sur :
+- Un **OCR neuronal** basé sur `python-doctr` + PyTorch pour extraire le texte des documents PDF et images
+- Une **API de détection de fraude** combinant règles métier (65 %) et machine learning — Isolation Forest (35 %)
+- Un **pipeline Airflow** en 8 étapes pour orchestrer le traitement de bout en bout
+- Une **architecture 3 zones** : RAW → CLEAN → CURATED pour la gestion des données documentaires
+- Deux interfaces React distinctes selon le profil utilisateur (CRM fournisseur / outil de conformité)
+
+---
+
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    📱 FRONTEND LAYER                            │
-│              (React + Vite · Port 5173)                        │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ Dashboard │ Upload │ Consultation │ Rapports │ Profil   │   │
-│  └──────────────────────────┬──────────────────────────────┘   │
-└───────────────────────────────┼────────────────────────────────┘
-                                │ HTTP/REST + WebSocket
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  🟢 BACKEND API LAYER                           │
-│            (Node.js + Express · Port 3000)                      │
-│  ┌────────────────────────────────────────────────────────┐    │
-│  │ Auth Routes  │ Company CRUD  │ Document Upload │ API   │    │
-│  │ User Mgmt    │ Validation    │ Analytics       │ REST  │    │
-│  └────┬─────────────────────────────────────────────┬────┘    │
-└───────┼───────────────────────────────────────────────┼────────┘
-        │                                              │
-        │ Queue/Events
-        │
-        ▼
-┌──────────────────────────┐
-│  🐍 PYTHON AI SERVICE    │
-│  (FastAPI · Port 8000)   │
-│                          │
-│ 1. OCR Extraction        │
-│ 2. Feature Extract       │
-│ 3. MLP Classification    │
-│ 4. Confidence Scoring    │
-│ 5. Quality Assessment    │
-│ 6. Validation & Anomalies│
-└──────────────────────────┘
-        │
-        │ Processed Results
-        ▼
-        ┌──────────────────────────────┐
-        │  📊 MongoDB Database          │
-        │  (Port 27017)                │
-        │  ├─ users                    │
-        │  ├─ companies                │
-        │  └─ documents                │
-        └──────────────────────────────┘
-                        │
-                        ▼
-        ┌──────────────────────────────┐
-        │  ✈️ Airflow Orchestration     │
-        │  (Port 8080)                 │
-        │  └─ document_pipeline DAG    │
-        └──────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  FRONTEND 1 — CRM Fournisseur      (Port 5173)          │
+│  FRONTEND 2 — Outil de Conformité  (Port 5174)          │
+│              React 18 + Vite + Tailwind CSS             │
+└─────────────────────┬───────────────────────────────────┘
+                      │ HTTP/REST
+                      ▼
+┌─────────────────────────────────────────────────────────┐
+│              BACKEND API  (Port 3000)                   │
+│              Node.js 22 + Express 5 + Mongoose 9        │
+│  Authentification JWT  |  Upload Multer  |  GridFS      │
+└──────┬──────────────────────────────────────────────────┘
+       │                         │
+       ▼                         ▼
+┌─────────────┐         ┌────────────────────────┐
+│  MongoDB 7  │         │  Airflow  (Port 8080)   │
+│ (Port 27017)│         │  DAG: document_pipeline │
+│  GridFS     │         └────────┬───────────────┘
+└─────────────┘                  │
+                                 │ orchestre les tâches
+                       ┌─────────┴──────────┐
+                       ▼                    ▼
+              ┌─────────────────┐  ┌─────────────────────┐
+              │  OCR Service    │  │  Fraud Detection API │
+              │  (Port 8000)    │  │  (Port 8001)         │
+              │  FastAPI+doctr  │  │  FastAPI+scikit-learn│
+              └─────────────────┘  └─────────────────────┘
 ```
 
-### 🔄 Flux de Traitement d'un Document
+### Flux de traitement d'un document
 
 ```
-1️⃣ UPLOAD
-   Utilisateur télécharge un fichier
+1. Upload utilisateur → Backend API
    ↓
-2️⃣ STOCKAGE (zona RAW)
-   Document stocké en format original
+2. Stockage MongoDB GridFS → status = "processing"
    ↓
-3️⃣ OCR EXTRACTION
-   Tesseract extrait le texte
-   MediaPipe détecte les structures
+3. Déclenchement DAG Airflow (document_id)
    ↓
-4️⃣ NETTOYAGE (zona CLEAN)
-   Normalisation des données
-   Correction des encodages
+4. OCR — extraction du texte via doctr/PyTorch
    ↓
-5️⃣ CLASSIFICATION
-   MLP détermine le type de document
+5. Nettoyage et normalisation des données
    ↓
-6️⃣ VALIDATION
-   Vérification des règles métier
-   Contrôles de conformité
+6. Classification du type de document
    ↓
-7️⃣ DÉTECTION FRAUDE
-   Isolation Forest analyse les anomalies
-   Scoring de risque (0-1)
+7. Validation métier (montants, dates, SIRET, TVA, RIB…)
    ↓
-8️⃣ ARCHIVAGE (zona CURATED)
-   Données prêtes pour exploitation
-   ✅ Document traité et validé
+8. Détection d'anomalies ML (Isolation Forest)
+   ↓
+9. Score de fraude combiné (65 % règles + 35 % ML)
+   ↓
+10. Stockage dans curatedDocuments → status = "completed" | "suspicious"
 ```
 
 ---
 
-## 🛠️ Technologies
+## Technologies
 
-### Frontend
-- **React 19.2** - Bibliothèque UI
-- **Vite 8.0** - Build tool ultra-rapide (380ms)
-- **ESLint** - Linting JavaScript
-- **CSS3 Modules** - Styling avancé
+### Frontends
 
-### Backend
-| Tech | Version | Rôle |
-|------|---------|------|
-| **Node.js** | 20+ | Runtime |
-| **Express** | 5.2 | Framework web |
-| **MongoDB** | 7.0 | Base NoSQL |
-| **Mongoose** | 9.0 | ODM |
-| **JWT** | 9.0 | Auth |
-| **Bcrypt** | 6.0 | Hashage |
-| **Multer** | 2.1 | Upload |
+| Technologie | Version | Rôle |
+|-------------|---------|------|
+| React | 18.2 | Interface utilisateur |
+| Vite | 5.0 | Build tool |
+| Tailwind CSS | 3.4 | Styling |
+| React Router | 6.22 | Navigation |
+| Axios | 1.6 | Requêtes HTTP |
 
-### Intelligence Artificielle
-| Tech | Version | Usage |
-|------|---------|-------|
-| **Python** | 3.12 | Langage IA |
-| **PyTorch** | 2.0+ | Deep Learning |
-| **FastAPI** | 0.104 | Framework async |
-| **Tesseract** | 5.x | OCR |
-| **MediaPipe** | 0.10 | Vision |
-| **Scikit-learn** | 1.3 | ML classique |
+Deux applications indépendantes :
+- `frontend/crm-fournisseur` — gestion des fournisseurs et de leurs documents (port 5173)
+- `frontend/outil-conformite` — outil de vérification de conformité documentaire (port 5174)
+
+### Backend (Node.js)
+
+| Technologie | Version | Rôle |
+|-------------|---------|------|
+| Node.js | 22 | Runtime |
+| Express | 5.2 | Framework web |
+| Mongoose | 9.0 | ODM MongoDB |
+| JWT | 9.0 | Authentification |
+| Bcrypt | 6.0 | Hashage des mots de passe |
+| Multer | 2.1 | Gestion des uploads |
+| Joi | 18.0 | Validation des données |
+
+### Services Python
+
+**OCR** (`ocr/`, port 8000)
+- FastAPI + Uvicorn
+- `python-doctr[torch]` — OCR neuronal (PyTorch) pour PDF et images
+- Extraction de champs spécialisée par type de document (`extract.py`)
+
+**Fraud Detection** (`fraud_detection/`, port 8001)
+- FastAPI + Uvicorn
+- scikit-learn 1.3 — Isolation Forest pour la détection d'anomalies
+- pymongo — accès direct MongoDB
+- rapidfuzz — comparaison floue de chaînes (noms, adresses)
+- NumPy — feature engineering
 
 ### Infrastructure
-- **Docker & Docker Compose** - Conteneurisation
-- **Apache Airflow** - Orchestration DAGs
-- **PostgreSQL 13** - Metadata Airflow
-- **Git** - Version control
+
+| Service | Technologie | Rôle |
+|---------|-------------|------|
+| Base de données principale | MongoDB 7 + GridFS | Stockage documents et fichiers binaires |
+| Orchestration | Apache Airflow 2 | DAG de traitement documentaire |
+| Base Airflow | PostgreSQL 13 | Métadonnées Airflow |
+| Conteneurisation | Docker + Docker Compose | Déploiement unifié de tous les services |
 
 ---
 
-## 📦 Prérequis
+## Documents supportés
 
-### Logiciels Requis
-
-```bash
-# Versions minimales
-Docker ≥ 20.10
-Docker Compose ≥ 2.0
-Git (pour cloner le repo)
-```
-
-Tout le reste (Node.js, Python, MongoDB, Airflow, etc.) est automatiquement installé dans les containers Docker.
-
-### Installation de Docker
-
-**Windows & macOS**
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (inclut Docker & Compose)
-
-**Linux (Ubuntu/Debian)**
-```bash
-# Docker
-sudo apt-get update
-sudo apt-get install docker.io docker-compose git -y
-
-# Donner permission user
-sudo usermod -aG docker $USER
-newgrp docker
-```
+| Type | Champs extraits |
+|------|-----------------|
+| Facture | Numéro, date, vendeur, acheteur, lignes, montants HT/TVA/TTC |
+| Devis | Numéro, date, client, lignes, montants, validité |
+| KBIS | Raison sociale, SIREN, SIRET, adresse, forme juridique, date immatriculation |
+| RIB | Titulaire, IBAN, BIC, banque |
+| Attestation | Type, émetteur, bénéficiaire, période de validité |
+| URSSAF | Entreprise, période, cotisations, attestation de régularité |
 
 ---
 
-## 🚀 Installation
+## Prérequis
 
-### 1️⃣ Cloner le Repository
+- Docker et Docker Compose ≥ 20.10
+- *(optionnel — développement manuel)* Node.js ≥ 20, Python ≥ 3.11
+
+---
+
+## Installation et démarrage
+
+### Avec Docker Compose (recommandé)
 
 ```bash
-git clone https://github.com/your-org/hackaton-mia.git
+git clone <url-du-repo>
 cd hackaton-mia
-```
 
-### 2️⃣ Configuration Docker (Optionnel)
-
-Tous les services sont configurés automatiquement via `docker-compose.yml`. Pas d'installation manuelle requise !
-
----
-
-## 🎬 Démarrage
-
-### Avec Docker Compose (Seule Méthode Supportée)
-
-```bash
-# Depuis la racine du projet
-docker-compose up --build
-
-# Ou en arrière-plan
-docker-compose up -d --build
-```
-
-**Services lancés** :
-- ✅ Frontend : http://localhost:5173
-- ✅ Backend API : http://localhost:3000
-- ✅ MongoDB : localhost:27017
-- ✅ Airflow : http://localhost:8080
-- ✅ Python AI : http://localhost:8000/docs
-- ✅ OCR API : http://localhost:8001/docs
-- ✅ Fraud Detection : http://localhost:8002/docs
-
-### Arrêter les Services
-
-```bash
-# Arrêter tous les containers
-docker-compose down
-
-# Arrêter et supprimer les volumes (reset complet)
-docker-compose down -v
-```
-
-### Vérifier le Démarrage
-
-```bash
-# Health checks
-curl http://localhost:3000/
-curl http://localhost:8080/
-curl http://localhost:5173/
-
-# Logs d'un service spécifique
-docker-compose logs -f backend
-docker-compose logs -f airflow
-```
-curl http://localhost:5173
-
-# Logs
-docker-compose logs -f backend
-docker-compose logs -f ai_service
-```
-
----
-
-## 🔍 Pipeline de Traitement
-
-### Détails Techniques
-
-### 📥 1. Upload Document
-```javascript
-// Frontend : envoi du fichier
-const formData = new FormData();
-formData.append('file', selectedFile);
-formData.append('documentType', 'invoice');
-formData.append('company', companyId);
-
-fetch('/api/documents/upload', {
-  method: 'POST',
-  headers: { 'Authorization': `Bearer ${token}` },
-  body: formData
-});
-```
-
-### 🔍 2. OCR & Extraction (Python)
-```python
-# Tesseract + MediaPipe
-def extract_data(image_path):
-    # OCR text extraction
-    text = pytesseract.image_to_string(image)
-    
-    # Keypoint detection
-    results = detector.process(image)
-    
-    # Structure detection
-    preprocessed = preprocess_document(image)
-    return {
-        'text': text,
-        'keypoints': results.landmarks,
-        'confidence': scorer.get_confidence()
-    }
-```
-
-### 🧠 3. Classification MLP
-```python
-# 165 features → 256 → 128 → 26 classes
-features = extract_hand_features(image)  # (165,)
-output = model(torch.tensor(features))   # (26,) logits
-prediction = torch.softmax(output, dim=0)
-letter = alphabet[prediction.argmax()]
-confidence = prediction.max().item()
-```
-
-### � 4. Validation & Anomalies
-```javascript
-// Backend validate
-async function validateDocument(doc) {
-  // Règles métier
-  const validation = {
-    hasRequiredFields: checkFields(doc),
-    dateValid: isValidDate(doc.date),
-    amountValid: isValidAmount(doc.amount),
-    siretValid: isValidSiret(doc.siretFournisseur)
-  };
-
-  // ML Anomaly Detection
-  const anomalies = fraudModel.detect(doc);
-  
-  return {
-    status: validation.all ? 'valid' : 'invalid',
-    anomalies: anomalies,
-    riskScore: calculateRisk(anomalies)
-  };
-}
-```
-
-### 💾 5. Archivage (zona CURATED)
-```javascript
-// Document prêt pour exploitation
-const finalDoc = {
-  _id: ObjectId,
-  filename: 'invoice_2024.pdf',
-  status: 'completed',
-  extractedData: {
-    invoiceNumber: 'INV-2024-001',
-    totalAmount: 1500.00,
-    taxAmount: 300.00,
-    vendor: { siret: '12345678901234', name: 'Acme Corp' }
-  },
-  validation: { status: 'valid', riskScore: 0.15 },
-  createdAt: new Date(),
-  updatedAt: new Date()
-};
-```
-
----
-
-## ⚙️ Configuration
-
-### Variables d'Environnement (Automatiques avec Docker)
-
-Toutes les variables d'environnement sont pré-configurées dans `docker-compose.yml`. Les services communiquent entre eux via les noms de containers.
-
-#### Fichiers de Configuration
-```
-├── docker-compose.yml       # Toute la config
-├── backend/                 # Backend service
-│   └── Dockerfile
-├── airflow/                 # Airflow DAGs
-│   ├── Dockerfile
-│   └── dags/
-├── ocr/                     # OCR service
-│   └── Dockerfile
-└── fraud_detection/         # Fraud detection service
-    └── Dockerfile
-```
-
-#### Modification Configuration
-
-Si vous voulez modifier des paramètres (ports, credentials, etc.), éditez `docker-compose.yml` :
-
-```yaml
-services:
-  backend:
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/hackathon
-      - JWT_SECRET=your_secret_key
-      - PORT=3000
-```
-
-Puis redémarrez :
-```bash
-docker-compose down
 docker-compose up --build
 ```
 
----
+Tous les services démarrent automatiquement. Attendre que l'init d'Airflow soit terminée (~1 min) avant d'utiliser le pipeline.
 
-## 🚀 Utilisation
+### Démarrage manuel (développement)
 
-### 1️⃣ Authentification
-
+**Backend**
 ```bash
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@hackathon-mia.fr",
-    "password": "Admin123!"
-  }'
-
-# Response
-{
-  "token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "_id": "507f1f77bcf86cd799439011",
-    "username": "admin",
-    "email": "admin@hackathon-mia.fr",
-    "role": "admin"
-  }
-}
+cd backend
+cp .env.example .env   # adapter les variables
+npm install
+npm run dev
 ```
 
-### 2️⃣ Créer une Entreprise
-
+**OCR Service**
 ```bash
-curl -X POST http://localhost:3000/api/companies \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Acme Corporation",
-    "siret": "12345678901234",
-    "siren": "123456789",
-    "tva": "FR12345678901",
-    "email": "contact@acme.com",
-    "phone": "+33123456789"
-  }'
+cd ocr
+pip install -r requirements.txt
+uvicorn ocr:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 3️⃣ Télécharger un Document
-
+**Fraud Detection**
 ```bash
-curl -X POST http://localhost:3000/api/documents/upload \
-  -H "Authorization: Bearer <TOKEN>" \
-  -F "file=@invoice.pdf" \
-  -F "documentType=invoice" \
-  -F "company=507f1f77bcf86cd799439011"
+cd fraud_detection
+pip install -r requirements.txt
+uvicorn api:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### 4️⃣ Lister les Documents
-
+**Frontend CRM**
 ```bash
-curl http://localhost:3000/api/documents \
-  -H "Authorization: Bearer <TOKEN>"
+cd frontend/crm-fournisseur
+npm install
+npm run dev   # http://localhost:5173
 ```
 
-### 5️⃣ Analyse de Fraude
-
+**Frontend Conformité**
 ```bash
-curl -X POST http://localhost:3000/api/documents/analyze \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "documentId": "507f1f77bcf86cd799439011"
-  }'
+cd frontend/outil-conformite
+npm install
+npm run dev   # http://localhost:5174
+```
 
-# Response
-{
-  "riskScore": 0.23,
-  "riskLevel": "low",
-  "anomalies": []
-}
+**Créer le compte admin initial**
+```bash
+cd backend
+npm run seed:admin
 ```
 
 ---
 
-## 📁 Structure du Projet
+## Services et ports
+
+| Service | Port | URL |
+|---------|------|-----|
+| Frontend CRM fournisseur | 5173 | http://localhost:5173 |
+| Frontend outil de conformité | 5174 | http://localhost:5174 |
+| Backend API | 3000 | http://localhost:3000 |
+| OCR Service (Swagger) | 8000 | http://localhost:8000/docs |
+| Fraud Detection API (Swagger) | 8001 | http://localhost:8001/docs |
+| Airflow | 8080 | http://localhost:8080 |
+| MongoDB | 27017 | mongodb://localhost:27017 |
+
+Identifiants Airflow par défaut : `admin` / `admin`
+
+---
+
+## Pipeline de traitement
+
+Le DAG `document_pipeline` dans Airflow orchestre 8 tâches séquentielles :
+
+| # | Tâche | Description |
+|---|-------|-------------|
+| 1 | `fetch_document` | Récupère le fichier depuis MongoDB GridFS via le `document_id` |
+| 2 | `ocr_task` | Envoie le fichier au service OCR (`POST /ocr`), reçoit les champs extraits |
+| 3 | `clean_data` | Normalise les valeurs (montants, dates, codes postaux, SIRET) |
+| 4 | `classify_document` | Détermine le type de document (facture, KBIS, RIB, etc.) |
+| 5 | `validate_rules` | Applique les règles métier (cohérence TVA, calculs, dates, format SIRET) |
+| 6 | `fraud_detection` | Envoie à l'API de fraude (`POST /fraud/evaluate`) |
+| 7 | `compute_score` | Calcule le score final : 65 % règles + 35 % Isolation Forest |
+| 8 | `store_result` | Sauvegarde dans `curatedDocuments`, met à jour le statut du document |
+
+Déclenchement manuel depuis l'interface Airflow avec la configuration :
+```json
+{ "document_id": "<ObjectId MongoDB>" }
+```
+
+---
+
+## Détection de fraude
+
+Le moteur de fraude (`fraud_detection/`) combine deux approches :
+
+### Règles métier (`validation_rules.py` — 390+ lignes)
+- Cohérence des calculs : HT × TVA = TTC
+- Validité du format SIRET/SIREN (algorithme de Luhn)
+- Contrôle IBAN/BIC (RIB)
+- Vérification des dates (expiration attestations, dates futures)
+- Champs obligatoires par type de document
+- Correspondance inter-documents (nom société vs KBIS, IBAN vs RIB déclaré)
+
+### Machine Learning (`anomaly_detection.py`)
+- Modèle : **Isolation Forest** (scikit-learn)
+- Features : montants, ratios TVA, densité de texte, métadonnées temporelles
+- Entraînement : `fraud_detection/scripts/train_model.py`
+- Modèle sérialisé dans `fraud_detection/model/`
+
+### Score final
+```
+score_fraude = (score_règles × 0.65) + (score_ml × 0.35)
+```
+- `score < 0.3` → document valide
+- `0.3 ≤ score < 0.7` → à vérifier manuellement
+- `score ≥ 0.7` → document suspect
+
+---
+
+## API — Principaux endpoints
+
+### Authentification
+```
+POST   /auth/login          Corps : { email, password }  → token JWT
+POST   /auth/signup         Corps : { email, password, role }
+GET    /auth/me             Header : Authorization: Bearer <token>
+```
+
+### Entreprises
+```
+GET    /companies           Liste des entreprises
+POST   /companies           Créer une entreprise
+GET    /companies/:id       Détail d'une entreprise
+PUT    /companies/:id       Mettre à jour
+GET    /companies/search    Recherche par SIRET, nom…
+```
+
+### Documents
+```
+POST   /documents/upload    Multipart : fichier + company_id
+GET    /documents           Liste des documents de l'utilisateur
+GET    /documents/:id       Détail + résultats OCR/fraude
+```
+
+### OCR Service (port 8000)
+```
+POST   /ocr                 Multipart : fichier PDF ou image → champs extraits (JSON)
+```
+
+### Fraud Detection API (port 8001)
+```
+POST   /fraud/evaluate      Corps : { document_type, extracted_fields, … } → score + détails
+```
+
+---
+
+## Structure du projet
 
 ```
 hackaton-mia/
-├── 📱 frontend/
-│   ├── src/
-│   │   ├── components/           # Composants React
-│   │   │   ├── Upload.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   └── DocumentList.jsx
-│   │   ├── pages/                # Pages
-│   │   ├── services/             # API client
-│   │   └── styles/               # CSS modules
-│   ├── vite.config.js
-│   ├── package.json
-│   ├── Dockerfile
-│   └── README.md
+├── frontend/
+│   ├── crm-fournisseur/        # App React — CRM fournisseurs (port 5173)
+│   │   ├── src/
+│   │   │   ├── components/     # Composants UI
+│   │   │   ├── pages/          # Pages de l'application
+│   │   │   ├── services/       # Appels API (axios)
+│   │   │   ├── context/        # AuthContext, FournisseurContext
+│   │   │   └── hooks/          # useAuth, useDocuments, useFournisseur
+│   │   ├── vite.config.js
+│   │   └── Dockerfile
+│   └── outil-conformite/       # App React — conformité (port 5174)
+│       └── ...                 # même structure
 │
-├── 🟢 backend/
-│   ├── src/
-│   │   ├── routes/               # Routes Express
-│   │   │   ├── auth.routes.js
-│   │   │   ├── company.routes.js
-│   │   │   └── document.routes.js
-│   │   ├── controllers/          # Controllers
-│   │   ├── models/               # Schémas Mongoose
-│   │   │   ├── user.model.js
-│   │   │   ├── company.model.js
-│   │   │   └── document.model.js
-│   │   ├── services/             # Business logic
-│   │   ├── middlewares/          # Auth, validation
-│   │   └── utils/                # Helpers
-│   ├── websocket/                # WebSocket routes
-│   ├── server.js                 # Entry point
-│   ├── package.json
-│   ├── Dockerfile
-│   └── .env.example
+├── backend/                    # API Node.js/Express (port 3000)
+│   ├── server.js               # Point d'entrée
+│   ├── config/
+│   │   └── database.config.js
+│   └── src/
+│       ├── routes/             # auth, company, document, user
+│       ├── controllers/        # Logique métier
+│       ├── models/             # user, company, document, curatedDocument
+│       ├── middlewares/        # JWT, autorisation, validation, upload
+│       ├── services/           # Appels services externes
+│       ├── dtos/               # Objets de transfert de données
+│       ├── scripts/            # seedAdmin.js
+│       └── uploads/            # Fichiers uploadés
 │
-├── 🐍 ai_service/
-│   ├── main.py                   # FastAPI + WebSocket
-│   ├── mediapipe_extractor.py    # ⭐ Feature extraction
-│   ├── fraud_detector.py         # Isolation Forest
-│   ├── model/
-│   │   ├── asl_alphabet_mlp.py   # Architecture MLP
-│   │   ├── asl_alphabet.pth      # Poids pré-entraînés
-│   │   └── scaler.pkl
-│   ├── datasets/                 # Training data
+├── ocr/                        # Service OCR Python/FastAPI (port 8000)
+│   ├── ocr.py                  # Endpoint POST /ocr — pipeline doctr
+│   ├── extract.py              # Extraction de champs par type de document
 │   ├── requirements.txt
-│   ├── Dockerfile
-│   └── README.md
+│   └── Dockerfile
 │
-├── docker-compose.yml             # ⭐ Configuration Docker
-├── .gitignore
-├── README.md                      # Ce fichier
-└── CONTRIBUTING.md
+├── fraud_detection/            # API détection de fraude (port 8001)
+│   ├── api.py                  # Endpoint POST /fraud/evaluate
+│   ├── anomaly_detection.py    # Isolation Forest
+│   ├── validation_rules.py     # Règles métier (390+ lignes)
+│   ├── cross_document_validator.py  # Détection d'incohérences inter-docs
+│   ├── feature_engineering.py  # Extraction de features ML
+│   ├── fraud_pipeline.py       # Pipeline de bout en bout
+│   ├── config.py               # Constantes (seuils, tolérances)
+│   ├── model/                  # Modèles entraînés (Isolation Forest + scaler)
+│   ├── scripts/
+│   │   ├── train_model.py      # Entraînement du modèle
+│   │   └── seed_test_data.py   # Données de test
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+├── airflow/                    # Orchestration Airflow (port 8080)
+│   ├── dags/
+│   │   └── document_pipeline.py  # DAG 8 tâches
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+├── dataset-generation/         # Génération de données synthétiques
+│   ├── data-generation.py      # Génération de documents PDF/images
+│   ├── generate_fake_data.py   # Données entreprises via Faker
+│   ├── templates/              # Templates de documents
+│   ├── entreprises.csv         # Référentiel entreprises
+│   └── requirements.txt
+│
+├── data/                       # Données de référence et cas d'usage
+│   ├── cas_usage/              # Scénarios de test réels
+│   └── output/                 # Résultats de traitement
+│
+├── docker-compose.yml          # Orchestration complète (9 services)
+├── API_CONNECTION.md           # Guide d'intégration API
+└── README.md
 ```
 
 ---
 
-## 👨‍💻 Développement
+## Variables d'environnement
 
-### Commandes Docker
+### Backend (`backend/.env`)
+
+```env
+PORT=3000
+NODE_ENV=development
+MONGO_URI=mongodb://mongo:27017/hackathon
+JWT_SECRET=your_secret_key
+ADMIN_EMAIL=admin@hackathon-mia.fr
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=Admin123!
+OCR_SERVICE_URL=http://ocr:8000/ocr
+```
+
+### Fraud Detection (`fraud_detection/.env`)
+
+```env
+MONGO_URI=mongodb://mongo:27017
+MONGO_DB_NAME=hackathon
+```
+
+Les services OCR et Airflow n'ont pas de fichier `.env` — leur configuration est injectée via `docker-compose.yml`.
+
+---
+
+## Génération de données de test
+
+Le dossier `dataset-generation/` contient des scripts pour créer des documents synthétiques réalistes :
 
 ```bash
-# Build & démarrer tous les services
-docker-compose up --build
+cd dataset-generation
+pip install -r requirements.txt
 
-# Démarrer en arrière-plan
-docker-compose up -d --build
+# Générer des entreprises fictives
+python generate_fake_data.py
 
-# Afficher les logs
-docker-compose logs -f                    # Tous les services
-docker-compose logs -f backend            # Juste le backend
-docker-compose logs -f airflow            # Juste Airflow
-docker-compose logs -f ocr                # Juste l'OCR
-
-# Arrêter
-docker-compose down
-
-# Arrêter et supprimer les volumes (reset complet)
-docker-compose down -v
+# Générer des documents PDF (factures, KBIS, RIB…)
+python data-generation.py
 ```
 
-### Modifier le Code
-
-Les fichiers source sont montés en volumes. Les changements sont visibles directement :
-```bash
-# Modifier le code → changements appliqués automatiquement
-vim backend/src/routes/auth.routes.js    # Hot reload activé
-
-# Pour les changements qui nécessitent un rebuild
-docker-compose restart backend
-```
-
-### Accéder aux Services
-```bash
-# Frontend
-http://localhost:5173
-
-# Backend API
-http://localhost:3000
-curl http://localhost:3000/
-
-# MongoDB (depuis un container)
-docker-compose exec mongo mongosh mongodb://127.0.0.1:27017/hackathon
-
-# Airflow
-http://localhost:8080
-
-# Python APIs (Swagger)
-http://localhost:8000/docs   # OCR
-http://localhost:8001/docs   # Fraud Detection
-```
-
----
-
-## 🤝 Contribuer
-
-Les contributions sont les bienvenues ! 
-
-### Comment Contribuer
-
-1. **Fork** le projet
-2. **Créer une branche** : `git checkout -b feature/AmazingFeature`
-3. **Commit** : `git commit -m 'Add: Amazing feature'`
-4. **Push** : `git push origin feature/AmazingFeature`
-5. **Pull Request** : Décrivez vos changements
-
-### Guidelines
-
-✅ Suivre les conventions de nommage  
-✅ Ajouter des tests pour les nouvelles fonctionnalités  
-✅ Documenter les changements  
-✅ Vérifier que tous les services passent les tests  
-
-Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour plus de détails.
-
----
-
-## 📄 Licence
-
-Ce projet est sous licence **ISC**.
-
-Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
----
-
-## 🙏 Remerciements
-
-- [Apache Airflow](https://airflow.apache.org/) - Orchestration
-- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) - OCR
-- [MediaPipe](https://mediapipe.dev/) - Vision
-- [Express.js](https://expressjs.com/) - Backend
-- [React](https://react.dev/) - Frontend
-- [PyTorch](https://pytorch.org/) - Deep Learning
-- [Scikit-learn](https://scikit-learn.org/) - ML
-
-Fait avec ❤️ et ☕ pour l'automatisation documentaire
+Les templates PDF sont dans `dataset-generation/templates/`. Les données de référence (codes NAF, formes juridiques) sont incluses sous forme de fichiers CSV/XLS.
