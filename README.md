@@ -1,4 +1,4 @@
-# Hackaton MIA
+# DocFlow
 
 Plateforme de traitement automatisé de documents administratifs et comptables avec détection de fraude par IA.
 
@@ -26,7 +26,7 @@ Plateforme de traitement automatisé de documents administratifs et comptables a
 
 ## À propos
 
-**Hackaton MIA** (Managed Intelligence for Administration) est une plateforme d'automatisation intelligente qui traite, valide et analyse des documents administratifs (factures, devis, attestations, KBIS, RIB, URSSAF) en temps réel.
+**DocFlow** est une plateforme d'automatisation intelligente qui traite, valide et analyse des documents administratifs (factures, devis, attestations, KBIS, RIB, URSSAF) en temps réel.
 
 Elle s'appuie sur :
 - Un **OCR neuronal** basé sur `python-doctr` + PyTorch pour extraire le texte des documents PDF et images
